@@ -41,7 +41,7 @@ class Rank(Enum):
 RED_SUITS = {Suit.DIAMONDS, Suit.HEARTS}
 
 
-class PlayingCard(Static, can_focus=True):
+class PlayingCard(Static):
     """A single playing card, showing a rank and suit, that can be flipped face-down."""
 
     DEFAULT_CSS = """

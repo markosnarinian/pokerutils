@@ -1,6 +1,7 @@
 import random
 
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.containers import Horizontal
 from textual.widgets import Footer, Header
 
@@ -26,6 +27,7 @@ class PokertoolsApp(App):
         ("s", "toggle_side_panel", "Toggle side panel"),
         ("h", "hide_details", "Hide details"),
         ("h", "show_details", "Show details"),
+        Binding("escape", "blur", "Remove focus", show=False),
         ("q", "quit", "Quit"),
     ]
 
@@ -67,6 +69,10 @@ class PokertoolsApp(App):
             card.face_up = True
 
         self._refresh_side_panel()
+
+    def action_blur(self) -> None:
+        """Remove focus from whichever widget currently has it."""
+        self.screen.set_focus(None)
 
     def action_toggle_side_panel(self) -> None:
         """Show or hide the side panel."""
