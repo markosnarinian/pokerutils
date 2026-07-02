@@ -9,18 +9,29 @@ class PokertoolsApp(App):
     TITLE = "pokertools"
 
     CSS = """
-    #table {
+    #main {
         height: 1fr;
+    }
+
+    #table {
+        width: 1fr;
+    }
+
+    #side-panel {
+        width: 30;
+        border: round white;
     }
 
     #community-cards {
         height: 1fr;
         align: center middle;
+        border: round white;
     }
 
     #hand {
         height: auto;
         align: center middle;
+        border: round white;
     }
 
     PlayingCard {
@@ -39,13 +50,15 @@ class PokertoolsApp(App):
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
         yield Header()
-        with Vertical(id="table"):
-            with Horizontal(id="community-cards"):
-                for _ in range(5):
-                    yield PlayingCard(Rank.ACE, Suit.SPADES, face_up=False)
-            with Horizontal(id="hand"):
-                yield PlayingCard(Rank.ACE, Suit.SPADES)
-                yield PlayingCard(Rank.KING, Suit.HEARTS)
+        with Horizontal(id="main"):
+            with Vertical(id="table"):
+                with Horizontal(id="community-cards"):
+                    for _ in range(5):
+                        yield PlayingCard(Rank.ACE, Suit.SPADES, face_up=False)
+                with Horizontal(id="hand"):
+                    yield PlayingCard(Rank.ACE, Suit.SPADES)
+                    yield PlayingCard(Rank.KING, Suit.HEARTS)
+            yield Vertical(id="side-panel")
         yield Footer()
 
     def action_toggle_dark(self) -> None:
