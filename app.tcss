@@ -7,13 +7,9 @@ Table {
 }
 
 SidePanel {
-    width: 30;
+    width: 45;
     border: round white;
     padding: 1;
-}
-
-SidePanel Static {
-    margin-bottom: 1;
 }
 
 CommunityCards {
