@@ -23,7 +23,7 @@ class PokertoolsApp(App):
     BINDINGS = [
         ("d", "deal", "Deal cards"),
         ("n", "next", "Next round"),
-        ("ctrl+q", "quit", "Quit"),
+        ("q", "quit", "Quit"),
     ]
 
     def compose(self) -> ComposeResult:
