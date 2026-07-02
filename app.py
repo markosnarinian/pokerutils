@@ -73,10 +73,6 @@ class PokertoolsApp(App):
         """Remove focus from whichever widget currently has it."""
         self.screen.set_focus(None)
 
-    def action_toggle_side_panel(self) -> None:
-        """Show or hide the side panel."""
-        self.query_one(SidePanel).display = not self.query_one(SidePanel).display
-
     def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
         """Show only the "hide details" or "show details" binding that currently applies."""
         if action in ("hide_details", "show_details"):
