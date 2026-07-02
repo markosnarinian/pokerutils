@@ -39,7 +39,9 @@ class SidePanel(Vertical):
                 lines = []
                 for draw in draws:
                     chance, odds = poker.draw_odds(draw.outs, unseen, cards_to_come)
-                    odds_text = f", {odds:.1f} : 1 against" if odds != float("inf") else ""
+                    odds_text = (
+                        f", {odds:.1f} : 1 against" if odds != float("inf") else ""
+                    )
                     lines.append(
                         f"- **{draw.name}** — {draw.outs} outs, {chance:.1f}%{odds_text}"
                     )
@@ -53,10 +55,10 @@ class SidePanel(Vertical):
             [
                 "## Hand",
                 f"**{hole_text}**  \n_{hand_desc}_",
-                "## Draws",
-                draws_text,
                 "## Deck",
                 f"**{unseen}** unseen cards",
+                "## Draws",
+                draws_text,
             ]
         )
         self.query_one(Markdown).update(markdown)
