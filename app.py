@@ -22,6 +22,14 @@ class PokertoolsApp(App):
         height: auto;
         align: center middle;
     }
+
+    PlayingCard {
+        margin-left: 1;
+    }
+
+    PlayingCard:first-of-type {
+        margin-left: 0;
+    }
     """
 
     BINDINGS = [
