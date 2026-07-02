@@ -50,10 +50,6 @@ class PlayingCard(Static, can_focus=True):
         height: 7;
     }
 
-    PlayingCard:focus {
-        text-style: bold;
-    }
-
     PlayingCard.-face-down {
         background: blue 40%;
         hatch: right white 30%;
