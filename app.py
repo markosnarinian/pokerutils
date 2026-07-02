@@ -4,7 +4,15 @@ from textual.app import App, ComposeResult
 from textual.containers import Horizontal
 from textual.widgets import Footer, Header
 
-from widgets import CommunityCards, PlayerHand, PlayingCard, Rank, SidePanel, Suit, Table
+from widgets import (
+    CommunityCards,
+    PlayerHand,
+    PlayingCard,
+    Rank,
+    SidePanel,
+    Suit,
+    Table,
+)
 
 
 class PokertoolsApp(App):
@@ -15,6 +23,7 @@ class PokertoolsApp(App):
     BINDINGS = [
         ("d", "deal", "Deal cards"),
         ("n", "next", "Next round"),
+        ("ctrl+q", "quit", "Quit"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -23,7 +32,7 @@ class PokertoolsApp(App):
         with Horizontal(id="main"):
             yield Table()
             yield SidePanel()
-        yield Footer()
+        yield Footer(show_command_palette=True)
 
     def on_mount(self) -> None:
         self.action_deal()
