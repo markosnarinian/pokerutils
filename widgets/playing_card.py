@@ -60,10 +60,6 @@ class PlayingCard(Static, can_focus=True):
     }
     """
 
-    BINDINGS = [
-        ("space,enter", "flip", "Flip card"),
-    ]
-
     rank: reactive[Rank] = reactive(Rank.ACE)
     suit: reactive[Suit] = reactive(Suit.SPADES)
     face_up: reactive[bool] = reactive(True)
