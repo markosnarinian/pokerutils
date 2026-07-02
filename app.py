@@ -5,6 +5,7 @@ from textual.binding import Binding
 from textual.containers import Horizontal
 from textual.widgets import Footer, Header
 
+from utils.config import load_theme, save_theme
 from widgets import (
     CommunityCards,
     PlayerHand,
@@ -24,13 +25,22 @@ class PokertoolsApp(App):
     AUTO_FOCUS = None
 
     BINDINGS = [
-        ("d", "deal", "Deal cards"),
-        ("n", "next", "Next round"),
-        ("s", "hide_details", "Hide details"),
-        ("s", "show_details", "Show details"),
+        Binding("d", "deal", "Deal cards"),
+        Binding("n", "next", "Next round"),
+        Binding("s", "hide_details", "Hide details"),
+        Binding("s", "show_details", "Show details"),
         Binding("escape", "blur", "Remove focus", show=False),
-        ("q", "quit", "Quit"),
+        Binding("q", "quit", "Quit"),
     ]
+
+    def __init__(self) -> None:
+        super().__init__()
+        saved_theme = load_theme()
+        if saved_theme is not None:
+            self.theme = saved_theme
+
+    def watch_theme(self, theme: str) -> None:
+        save_theme(theme)
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
