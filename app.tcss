@@ -9,7 +9,6 @@ Table {
 SidePanel {
     width: 30;
     border: round white;
-    padding: 1;
 }
 
 CommunityCards {
