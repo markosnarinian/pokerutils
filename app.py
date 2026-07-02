@@ -23,6 +23,7 @@ class PokertoolsApp(App):
     BINDINGS = [
         ("d", "deal", "Deal cards"),
         ("n", "next", "Next round"),
+        ("s", "toggle_side_panel", "Toggle side panel"),
         ("q", "quit", "Quit"),
     ]
 
@@ -64,6 +65,10 @@ class PokertoolsApp(App):
             card.face_up = True
 
         self._refresh_side_panel()
+
+    def action_toggle_side_panel(self) -> None:
+        """Show or hide the side panel."""
+        self.query_one(SidePanel).display = not self.query_one(SidePanel).display
 
     def _refresh_side_panel(self) -> None:
         self.query_one(SidePanel).refresh_info(
