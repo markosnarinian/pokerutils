@@ -18,9 +18,16 @@ CommunityCards {
     border: round white;
 }
 
+#bottom {
+    height: 1fr;
+}
+
 PlayerHand {
-    height: auto;
     align: center middle;
+    border: round white;
+}
+
+AnswerPanel {
     border: round white;
 }
 

@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from textual.app import ComposeResult
-from textual.containers import Vertical
+from textual.containers import Horizontal, Vertical
 
+from widgets.answer_panel import AnswerPanel
 from widgets.community_cards import CommunityCards
 from widgets.player_hand import PlayerHand
 
@@ -14,4 +15,6 @@ class Table(Vertical):
 
     def compose(self) -> ComposeResult:
         yield CommunityCards()
-        yield PlayerHand()
+        with Horizontal(id="bottom"):
+            yield PlayerHand()
+            yield AnswerPanel()
