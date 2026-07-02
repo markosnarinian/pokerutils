@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from itertools import combinations
 from typing import Iterable
 
-from widgets.playing_card import Rank, Suit
+from widgets.playing_card import PlayingCard, Rank, Suit
 
 RANK_VALUES = {
     Rank.TWO: 2,
@@ -188,3 +188,45 @@ def draw_odds(outs: int, unseen: int, cards_to_come: int) -> tuple[float, float]
     chance = 1 - (miss / total)
     odds_against = (1 - chance) / chance if chance > 0 else math.inf
     return chance * 100, odds_against
+
+
+@dataclass
+class Summary:
+    hole_text: str
+    hand_desc: str
+    draws_text: str
+    unseen: int
+
+
+def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
+    """Summarize hand strength, draws, and unseen cards for display."""
+    hole_cards = to_cards((card.rank, card.suit) for card in hole)
+    revealed = [card for card in board if card.face_up]
+    board_cards = to_cards((card.rank, card.suit) for card in revealed)
+    known = hole_cards + board_cards
+
+    if len(known) >= 5:
+        hand_desc = evaluate_best(known).description
+    else:
+        hand_desc = describe_hole_cards(hole_cards) if hole_cards else "--"
+
+    hole_text = " ".join(f"{card.rank.value}{card.suit.value}" for card in hole)
+
+    unseen = DECK_SIZE - len(known)
+    cards_to_come = {3: 2, 4: 1}.get(len(revealed), 0)
+
+    if cards_to_come and known:
+        draws = detect_draws(known)
+        if draws:
+            lines = []
+            for draw in draws:
+                chance, odds = draw_odds(draw.outs, unseen, cards_to_come)
+                odds_text = f", {odds:.1f} : 1 against" if odds != math.inf else ""
+                lines.append(f"- **{draw.name}** — {draw.outs} outs, {chance:.1f}%{odds_text}")
+            draws_text = "\n".join(lines)
+        else:
+            draws_text = "_None_"
+    else:
+        draws_text = "_--_"
+
+    return Summary(hole_text=hole_text, hand_desc=hand_desc, draws_text=draws_text, unseen=unseen)
