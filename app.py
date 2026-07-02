@@ -58,6 +58,8 @@ class PokertoolsApp(App):
             card.rank, card.suit = deck.pop()
             card.face_up = False
 
+        self._refresh_side_panel()
+
     def action_next(self) -> None:
         """Reveal the flop (3 cards), then the turn, then the river."""
         cards = list(self.query(CommunityCards).first().query(PlayingCard))
