@@ -8,40 +8,7 @@ from widgets import PlayingCard, Rank, Suit
 class PokertoolsApp(App):
     TITLE = "pokertools"
 
-    CSS = """
-    #main {
-        height: 1fr;
-    }
-
-    #table {
-        width: 1fr;
-    }
-
-    #side-panel {
-        width: 30;
-        border: round white;
-    }
-
-    #community-cards {
-        height: 1fr;
-        align: center middle;
-        border: round white;
-    }
-
-    #hand {
-        height: auto;
-        align: center middle;
-        border: round white;
-    }
-
-    PlayingCard {
-        margin-left: 1;
-    }
-
-    PlayingCard:first-of-type {
-        margin-left: 0;
-    }
-    """
+    CSS_PATH = "app.tcss"
 
     BINDINGS = [
         ("d", "toggle_dark", "Toggle dark mode"),
