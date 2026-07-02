@@ -114,13 +114,12 @@ class PlayingCard(Static, can_focus=True):
         return Panel(body, style="on white", border_style=color)
 
     def _render_back(self) -> RenderableType:
-        word = "pokertools"
-        rows = 5
-        chars_per_row = -(-len(word) // rows)  # ceil division
-
-        lines = []
-        for row in range(rows):
-            chunk = word[row * chars_per_row : (row + 1) * chars_per_row]
-            lines.append(Text(" " * row + chunk, style="bold white"))
+        lines = [
+            " poker-",
+            "",
+            "",
+            "",
+            "tools",
+        ]
         body = Group(*lines)
         return Panel(body, border_style="white")
