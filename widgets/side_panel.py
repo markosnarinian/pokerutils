@@ -44,12 +44,14 @@ class SidePanel(Vertical):
                     chance, odds = poker.draw_odds(draw.outs, unseen, cards_to_come)
                     odds_text = f"{odds:.1f} : 1" if odds != float("inf") else "--"
                     lines.append(f"  {draw.name}")
-                    lines.append(f"    {draw.outs} outs, {chance:.1f}% ({odds_text} against)")
+                    lines.append(
+                        f"    {draw.outs} outs, {chance:.1f}% ({odds_text} against)"
+                    )
                 draws_text = "\n".join(lines)
             else:
                 draws_text = "Draws: none"
         elif len(revealed) == 5:
-            draws_text = "Draws: board complete"
+            draws_text = "Draws: --"
         else:
             draws_text = "Draws: --"
 
