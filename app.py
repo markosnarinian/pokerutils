@@ -11,7 +11,8 @@ class PokertoolsApp(App):
     CSS_PATH = "app.tcss"
 
     BINDINGS = [
-        ("d", "toggle_dark", "Toggle dark mode"),
+        ("d", "deal", "Deal cards"),
+        ("n", "next", "Next round"),
     ]
 
     def compose(self) -> ComposeResult:
