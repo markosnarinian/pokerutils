@@ -16,6 +16,10 @@ from widgets import (
 
 
 class PokertoolsApp(App):
+    def __init__(self, dev_mode=False, **kwargs):
+        super().__init__(**kwargs)
+        self.dev_mode = dev_mode
+
     TITLE = "pokertools"
 
     CSS_PATH = "app.tcss"
