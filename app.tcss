@@ -29,10 +29,31 @@ CommunityCards {
 PlayerHand {
     align: center middle;
     border: round white;
+    width: 30;
 }
 
 AnswerPanel {
     border: round white;
+    padding: 1;
+}
+
+AnswerPanel Label {
+    margin-bottom: 1;
+}
+
+#odds-against {
+    margin-left: 1;
+}
+
+#outs {
+    margin-left: 9;
+}
+
+AnswerPanel Input {
+    width: 15;
+}
+
+AnswerPanel Button {
 }
 
 PlayingCard {
