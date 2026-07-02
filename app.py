@@ -37,3 +37,14 @@ class PokertoolsApp(App):
         for card in self.query(CommunityCards).first().query(PlayingCard):
             card.rank, card.suit = deck.pop()
             card.face_up = False
+
+    def action_next(self) -> None:
+        """Reveal the flop (3 cards), then the turn, then the river."""
+        cards = list(self.query(CommunityCards).first().query(PlayingCard))
+        face_down = [card for card in cards if not card.face_up]
+        if not face_down:
+            return
+
+        reveal_count = 3 if len(face_down) == len(cards) else 1
+        for card in face_down[:reveal_count]:
+            card.face_up = True
