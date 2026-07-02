@@ -21,6 +21,8 @@ class PokertoolsApp(App):
 
     CSS_PATH = "app.tcss"
 
+    AUTO_FOCUS = None
+
     BINDINGS = [
         ("d", "deal", "Deal cards"),
         ("n", "next", "Next round"),
@@ -40,7 +42,6 @@ class PokertoolsApp(App):
 
     def on_mount(self) -> None:
         self.action_deal()
-        self.action_show_details()
 
     def action_deal(self) -> None:
         """Shuffle a fresh deck and deal new hole cards and community cards."""
@@ -56,8 +57,6 @@ class PokertoolsApp(App):
         for card in self.query(CommunityCards).first().query(PlayingCard):
             card.rank, card.suit = deck.pop()
             card.face_up = False
-
-        self._refresh_side_panel()
 
     def action_next(self) -> None:
         """Reveal the flop (3 cards), then the turn, then the river."""
