@@ -2,22 +2,22 @@
     height: 1fr;
 }
 
-#table {
+Table {
     width: 1fr;
 }
 
-#side-panel {
+SidePanel {
     width: 30;
     border: round white;
 }
 
-#community-cards {
+CommunityCards {
     height: 1fr;
     align: center middle;
     border: round white;
 }
 
-#hand {
+PlayerHand {
     height: auto;
     align: center middle;
     border: round white;
