@@ -9,7 +9,6 @@ Table {
 SidePanel {
     width: 45;
     border: round white;
-    padding: 1;
 }
 
 CommunityCards {
@@ -25,14 +24,18 @@ CommunityCards {
 PlayerHand {
     align: center middle;
     border: round white;
+    padding: 1;
 }
 
 AnswerPanel {
+    align: center middle;
     border: round white;
     padding: 1;
 }
 
-AnswerPanel Label {
+AnswerPanel HorizontalGroup {
+    align: center middle;
+    width: auto;
     margin-bottom: 1;
 }
 
