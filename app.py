@@ -25,6 +25,9 @@ class PokertoolsApp(App):
             yield SidePanel()
         yield Footer()
 
+    def on_mount(self) -> None:
+        self.action_deal()
+
     def action_deal(self) -> None:
         """Shuffle a fresh deck and deal new hole cards and community cards."""
         deck = [(rank, suit) for suit in Suit for rank in Rank]
