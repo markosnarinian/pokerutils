@@ -24,6 +24,8 @@ class PokertoolsApp(App):
         ("d", "deal", "Deal cards"),
         ("n", "next", "Next round"),
         ("s", "toggle_side_panel", "Toggle side panel"),
+        ("h", "hide_details", "Hide details"),
+        ("h", "show_details", "Show details"),
         ("q", "quit", "Quit"),
     ]
 
@@ -69,6 +71,26 @@ class PokertoolsApp(App):
     def action_toggle_side_panel(self) -> None:
         """Show or hide the side panel."""
         self.query_one(SidePanel).display = not self.query_one(SidePanel).display
+
+    def check_action(
+        self, action: str, parameters: tuple[object, ...]
+    ) -> bool | None:
+        """Show only the "hide details" or "show details" binding that currently applies."""
+        if action in ("hide_details", "show_details"):
+            side_panels = self.query(SidePanel)
+            hidden = side_panels.first().hidden if side_panels else False
+            return hidden == (action == "show_details")
+        return True
+
+    def action_hide_details(self) -> None:
+        """Hide the side panel's details behind a shaded pattern."""
+        self.query_one(SidePanel).hidden = True
+        self.refresh_bindings()
+
+    def action_show_details(self) -> None:
+        """Reveal the side panel's details."""
+        self.query_one(SidePanel).hidden = False
+        self.refresh_bindings()
 
     def _refresh_side_panel(self) -> None:
         self.query_one(SidePanel).refresh_info(

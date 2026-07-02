@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from textual.app import ComposeResult
 from textual.containers import Vertical
+from textual.reactive import reactive
 from textual.widgets import Markdown
 
 from utils.poker import summarize
@@ -13,8 +14,14 @@ from widgets.playing_card import PlayingCard
 class SidePanel(Vertical):
     """A panel next to the table showing hand strength, draws, and outs."""
 
+    hidden: reactive[bool] = reactive(False)
+
     def compose(self) -> ComposeResult:
         yield Markdown()
+
+    def watch_hidden(self, hidden: bool) -> None:
+        self.set_class(hidden, "-hidden")
+        self.query_one(Markdown).display = not hidden
 
     def refresh_info(self, hole: list[PlayingCard], board: list[PlayingCard]) -> None:
         """Recompute and display hand strength, draws, and the unseen-card count."""
