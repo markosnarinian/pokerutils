@@ -55,7 +55,7 @@ class PlayingCard(Static, can_focus=True):
     }
 
     PlayingCard.-face-down {
-        background: blue;
+        background: blue 40%;
         hatch: right white 30%;
     }
     """
