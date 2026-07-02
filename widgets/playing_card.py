@@ -53,6 +53,11 @@ class PlayingCard(Static, can_focus=True):
     PlayingCard:focus {
         text-style: bold;
     }
+
+    PlayingCard.-face-down {
+        background: blue;
+        hatch: right white 30%;
+    }
     """
 
     BINDINGS = [
@@ -78,6 +83,7 @@ class PlayingCard(Static, can_focus=True):
         self.set_reactive(PlayingCard.rank, rank)
         self.set_reactive(PlayingCard.suit, suit)
         self.set_reactive(PlayingCard.face_up, face_up)
+        self.set_class(not face_up, "-face-down")
 
     def flip(self) -> None:
         """Toggle the card between face-up and face-down."""
@@ -92,7 +98,8 @@ class PlayingCard(Static, can_focus=True):
     def watch_suit(self) -> None:
         self.refresh()
 
-    def watch_face_up(self) -> None:
+    def watch_face_up(self, face_up: bool) -> None:
+        self.set_class(not face_up, "-face-down")
         self.refresh()
 
     def render(self) -> RenderableType:
@@ -115,7 +122,13 @@ class PlayingCard(Static, can_focus=True):
         return Panel(body, style="on white", border_style=color)
 
     def _render_back(self) -> RenderableType:
-        pattern = "\n".join("▚▚▚▚▚▚▚" for _ in range(5))
-        return Panel(
-            Text(pattern, style="dim white"), style="blue on blue", border_style="white"
-        )
+        word = "pokertools"
+        rows = 5
+        chars_per_row = -(-len(word) // rows)  # ceil division
+
+        lines = []
+        for row in range(rows):
+            chunk = word[row * chars_per_row : (row + 1) * chars_per_row]
+            lines.append(Text(" " * row + chunk, style="bold white"))
+        body = Group(*lines)
+        return Panel(body, border_style="white")
