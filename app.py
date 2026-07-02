@@ -42,12 +42,9 @@ class PokertoolsApp(App):
 
     def on_mount(self) -> None:
         self.action_deal()
-        self.action_show_details()
 
     def action_deal(self) -> None:
         """Shuffle a fresh deck and deal new hole cards and community cards."""
-        self.action_hide_details()
-
         deck = [(rank, suit) for suit in Suit for rank in Rank]
         random.shuffle(deck)
 
