@@ -24,9 +24,8 @@ class PokertoolsApp(App):
     BINDINGS = [
         ("d", "deal", "Deal cards"),
         ("n", "next", "Next round"),
-        ("s", "toggle_side_panel", "Toggle side panel"),
-        ("h", "hide_details", "Hide details"),
-        ("h", "show_details", "Show details"),
+        ("s", "hide_details", "Hide details"),
+        ("s", "show_details", "Show details"),
         Binding("escape", "blur", "Remove focus", show=False),
         ("q", "quit", "Quit"),
     ]
@@ -78,9 +77,7 @@ class PokertoolsApp(App):
         """Show or hide the side panel."""
         self.query_one(SidePanel).display = not self.query_one(SidePanel).display
 
-    def check_action(
-        self, action: str, parameters: tuple[object, ...]
-    ) -> bool | None:
+    def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
         """Show only the "hide details" or "show details" binding that currently applies."""
         if action in ("hide_details", "show_details"):
             side_panels = self.query(SidePanel)
