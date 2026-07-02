@@ -13,10 +13,6 @@ class PokertoolsApp(App):
         height: 1fr;
     }
 
-    #deck {
-        height: auto;
-    }
-
     #community-cards {
         height: 1fr;
         align: center middle;
@@ -36,8 +32,6 @@ class PokertoolsApp(App):
         """Create child widgets for the app."""
         yield Header()
         with Vertical(id="table"):
-            with Horizontal(id="deck"):
-                yield PlayingCard(Rank.ACE, Suit.SPADES, face_up=False, id="deck")
             with Horizontal(id="community-cards"):
                 for _ in range(5):
                     yield PlayingCard(Rank.ACE, Suit.SPADES, face_up=False)
