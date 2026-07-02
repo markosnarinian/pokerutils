@@ -221,8 +221,11 @@ def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
             lines = []
             for draw in draws:
                 chance, odds = draw_odds(draw.outs, unseen, cards_to_come)
-                odds_text = f", {odds:.1f} : 1 against" if odds != math.inf else ""
-                lines.append(f"- **{draw.name}** — {draw.outs} outs, {chance:.1f}%{odds_text}")
+                lines.append(f"- **{draw.name}**")
+                lines.append(f"    - {draw.outs} outs")
+                lines.append(f"    - {chance:.1f}% chance")
+                if odds != math.inf:
+                    lines.append(f"    - {odds:.1f} : 1 against")
             draws_text = "\n".join(lines)
         else:
             draws_text = "_None_"
