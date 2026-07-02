@@ -12,10 +12,6 @@ SidePanel {
     padding: 1;
 }
 
-SidePanel.-hidden {
-    hatch: right white 30%;
-}
-
 CommunityCards {
     height: 1fr;
     align: center middle;
@@ -29,7 +25,6 @@ CommunityCards {
 PlayerHand {
     align: center middle;
     border: round white;
-    width: 30;
 }
 
 AnswerPanel {
