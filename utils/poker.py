@@ -60,6 +60,28 @@ def _is_straight(values: set[int]) -> int | None:
     return None
 
 
+def _straight_windows(values: set[int]) -> list[tuple[int, set[int]]]:
+    """Return (window_low, missing_ranks) for every 5-wide run missing 1 or 2 ranks."""
+    ranks = set(values)
+    if 14 in ranks:
+        ranks.add(1)  # ace also plays low, for the wheel (A-2-3-4-5)
+    windows = []
+    for low in range(1, 11):
+        window = set(range(low, low + 5))
+        missing = window - ranks
+        if 1 <= len(missing) <= 2:
+            windows.append((low, missing))
+    return windows
+
+
+def _straight_name(high: int) -> str:
+    if high == 14:
+        return "Broadway Straight"
+    if high == 5:
+        return "The Wheel"
+    return f"{_name(high)}-High Straight"
+
+
 @dataclass
 class HandResult:
     category: int
@@ -67,7 +89,7 @@ class HandResult:
     description: str
 
 
-def evaluate_five(cards: list[Card]) -> HandResult:
+def evaluate_five(cards: list[Card], hole_cards: set[Card] | None = None) -> HandResult:
     """Rank a single 5-card hand."""
     values = [value for value, _ in cards]
     suits = [suit for _, suit in cards]
@@ -79,10 +101,16 @@ def evaluate_five(cards: list[Card]) -> HandResult:
     straight_high = _is_straight(set(values))
 
     if straight_high and flush:
-        return HandResult(8, (straight_high,), f"Straight Flush, {_name(straight_high)} High")
+        if straight_high == 14:
+            description = "Royal Flush"
+        elif straight_high == 5:
+            description = "Steel Wheel"
+        else:
+            description = f"{_name(straight_high)}-High Straight Flush"
+        return HandResult(8, (straight_high,), description)
     if count_sizes[0] == 4:
         return HandResult(
-            7, (count_values[0], count_values[1]), f"Four of a Kind, {_plural(count_values[0])}"
+            7, (count_values[0], count_values[1]), f"Quad {_plural(count_values[0])}"
         )
     if count_sizes[0] == 3 and count_sizes[1] == 2:
         return HandResult(
@@ -92,27 +120,33 @@ def evaluate_five(cards: list[Card]) -> HandResult:
         )
     if flush:
         return HandResult(
-            5, tuple(sorted(values, reverse=True)), f"Flush, {_name(max(values))} High"
+            5, tuple(sorted(values, reverse=True)), f"{_name(max(values))}-High Flush"
         )
     if straight_high:
-        return HandResult(4, (straight_high,), f"Straight, {_name(straight_high)} High")
+        return HandResult(4, (straight_high,), _straight_name(straight_high))
     if count_sizes[0] == 3:
-        return HandResult(3, tuple(count_values), f"Three of a Kind, {_plural(count_values[0])}")
+        trip_rank = count_values[0]
+        is_set = (
+            hole_cards is not None
+            and sum(1 for card in cards if card[0] == trip_rank and card in hole_cards) >= 2
+        )
+        label = f"Set of {_plural(trip_rank)}" if is_set else f"Trip {_plural(trip_rank)}"
+        return HandResult(3, tuple(count_values), label)
     if count_sizes[0] == 2 and count_sizes[1] == 2:
         hi, lo = sorted(count_values[:2], reverse=True)
         return HandResult(2, (hi, lo, count_values[2]), f"Two Pair, {_plural(hi)} and {_plural(lo)}")
     if count_sizes[0] == 2:
         return HandResult(1, tuple(count_values), f"Pair of {_plural(count_values[0])}")
     top5 = sorted(values, reverse=True)
-    return HandResult(0, tuple(top5), f"High Card, {_name(top5[0])}")
+    return HandResult(0, tuple(top5), f"{_name(top5[0])} High")
 
 
-def evaluate_best(cards: list[Card]) -> HandResult:
+def evaluate_best(cards: list[Card], hole_cards: set[Card] | None = None) -> HandResult:
     """Evaluate the best 5-card hand out of 5, 6, or 7 known cards."""
     if len(cards) < 5:
         raise ValueError("Need at least 5 cards to evaluate a hand")
     return max(
-        (evaluate_five(list(combo)) for combo in combinations(cards, 5)),
+        (evaluate_five(list(combo), hole_cards) for combo in combinations(cards, 5)),
         key=lambda result: (result.category, result.tiebreak),
     )
 
@@ -131,49 +165,67 @@ def describe_hole_cards(cards: list[Card]) -> str:
 class Draw:
     name: str
     outs: int
+    chance: float | None = None
+    odds_against: float | None = None
 
 
-def _straight_completing_values(values: set[int]) -> set[int]:
-    """Which single rank values, if drawn, would complete a straight."""
-    ranks = set(values)
-    if 14 in ranks:
-        ranks.add(1)
-    completing = set()
-    for candidate in range(2, 15):
-        if candidate in ranks:
-            continue
-        trial = ranks | {candidate}
-        if candidate == 14:
-            trial.add(1)
-        if _is_straight(trial) is not None:
-            completing.add(candidate)
-    return completing
-
-
-def detect_draws(cards: list[Card]) -> list[Draw]:
-    """Detect flush and straight draws among 5, 6, or 7 known cards."""
+def detect_draws(cards: list[Card], unseen: int, cards_to_come: int) -> list[Draw]:
+    """Detect flush, straight, gutshot, and backdoor draws among 5, 6, or 7 known cards."""
     if len(cards) < 5:
         return []
 
     made = evaluate_best(cards)
     draws: list[Draw] = []
+    values = {value for value, _ in cards}
 
     suit_counts = Counter(suit for _, suit in cards)
     for suit, count in suit_counts.items():
         if count == 4:
             draws.append(Draw(f"Flush Draw ({suit.value})", 13 - count))
+        elif count == 3 and cards_to_come == 2 and unseen >= 2:
+            backdoor_outs = 13 - count
+            chance = math.comb(backdoor_outs, 2) / math.comb(unseen, 2) * 100
+            odds = (100 - chance) / chance if chance > 0 else math.inf
+            draws.append(Draw(f"Backdoor Flush Draw ({suit.value})", backdoor_outs, chance, odds))
 
     if made.category < 4:
-        completing = _straight_completing_values({value for value, _ in cards})
-        if completing:
-            outs = 4 * len(completing)
-            if outs == 8:
-                name = "Open-Ended Straight Draw"
-            elif outs == 4:
-                name = "Gutshot Straight Draw"
+        windows = _straight_windows(values)
+
+        real_missing: dict[int, bool] = {}
+        for low, missing in windows:
+            if len(missing) != 1:
+                continue
+            missing_val = next(iter(missing))
+            real_val = 14 if missing_val == 1 else missing_val
+            is_edge = missing_val in (low, low + 4)
+            real_missing[real_val] = real_missing.get(real_val, False) or is_edge
+
+        if len(real_missing) == 1:
+            draws.append(Draw("Gutshot Straight Draw", 4))
+        elif len(real_missing) == 2:
+            if all(real_missing.values()):
+                draws.append(Draw("Open-Ended Straight Draw", 8))
             else:
-                name = "Straight Draw"
-            draws.append(Draw(name, outs))
+                draws.append(Draw("Double Gutshot Straight Draw", 8))
+        elif len(real_missing) > 2:
+            draws.append(Draw("Straight Draw", 4 * len(real_missing)))
+
+        if cards_to_come == 2 and unseen >= 2:
+            backdoor_pairs: set[frozenset[int]] = set()
+            for low, missing in windows:
+                if len(missing) != 2:
+                    continue
+                backdoor_pairs.add(frozenset(14 if v == 1 else v for v in missing))
+
+            for pair in backdoor_pairs:
+                if pair & real_missing.keys():
+                    continue  # already a direct out on one of these ranks
+                hi, lo = sorted(pair, reverse=True)
+                chance = 4 * 4 / math.comb(unseen, 2) * 100
+                odds = (100 - chance) / chance if chance > 0 else math.inf
+                draws.append(
+                    Draw(f"Backdoor Straight Draw ({_name(hi)}-{_name(lo)})", 8, chance, odds)
+                )
 
     return draws
 
@@ -206,7 +258,7 @@ def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
     known = hole_cards + board_cards
 
     if len(known) >= 5:
-        hand_desc = evaluate_best(known).description
+        hand_desc = evaluate_best(known, set(hole_cards)).description
     else:
         hand_desc = describe_hole_cards(hole_cards) if hole_cards else "--"
 
@@ -216,11 +268,14 @@ def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
     cards_to_come = {3: 2, 4: 1}.get(len(revealed), 0)
 
     if cards_to_come and known:
-        draws = detect_draws(known)
+        draws = detect_draws(known, unseen, cards_to_come)
         if draws:
             lines = []
             for draw in draws:
-                chance, odds = draw_odds(draw.outs, unseen, cards_to_come)
+                if draw.chance is None:
+                    chance, odds = draw_odds(draw.outs, unseen, cards_to_come)
+                else:
+                    chance, odds = draw.chance, draw.odds_against
                 lines.append(f"- **{draw.name}**")
                 lines.append(f"    - {draw.outs} outs")
                 lines.append(f"    - {chance:.1f}% chance")
