@@ -54,6 +54,7 @@ AnswerPanel Input {
 }
 
 AnswerPanel Button {
+    width: 29;
 }
 
 PlayingCard {
