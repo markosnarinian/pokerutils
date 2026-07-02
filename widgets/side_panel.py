@@ -19,10 +19,6 @@ class SidePanel(Vertical):
     def compose(self) -> ComposeResult:
         yield Markdown()
 
-    def watch_hidden(self, hidden: bool) -> None:
-        self.set_class(hidden, "-hidden")
-        self.query_one(Markdown).display = not hidden
-
     def refresh_info(self, hole: list[PlayingCard], board: list[PlayingCard]) -> None:
         """Recompute and display hand strength, draws, and the unseen-card count."""
         summary = summarize(hole, board)
