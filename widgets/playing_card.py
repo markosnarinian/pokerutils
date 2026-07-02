@@ -115,7 +115,7 @@ class PlayingCard(Static, can_focus=True):
 
     def _render_back(self) -> RenderableType:
         lines = [
-            " poker-",
+            "  poker",
             "",
             "",
             "",
