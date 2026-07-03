@@ -4,20 +4,11 @@ from __future__ import annotations
 
 from textual.app import ComposeResult
 from textual.containers import HorizontalGroup, Vertical
-from textual.message import Message
-from textual.widgets import Button, Input, Label
+from textual.widgets import Button, Input, Label, Static
 
 
 class AnswerPanel(Vertical):
     """A form, next to the player's hand, for entering odds against and outs."""
-
-    class Submitted(Message):
-        """Posted when the player submits their odds-against and outs answers."""
-
-        def __init__(self, odds_against: str, outs: str) -> None:
-            self.odds_against = odds_against
-            self.outs = outs
-            super().__init__()
 
     def compose(self) -> ComposeResult:
         with HorizontalGroup():
@@ -35,4 +26,4 @@ class AnswerPanel(Vertical):
             return
         odds_against = self.query_one("#odds-against", Input).value
         outs = self.query_one("#outs", Input).value
-        self.post_message(self.Submitted(odds_against, outs))
+        print(f"Odds against: {odds_against}, Outs: {outs}")
