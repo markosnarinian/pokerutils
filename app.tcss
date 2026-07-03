@@ -9,6 +9,7 @@ Table {
 SidePanel {
     width: 45;
     border: round white;
+    overflow-y: auto;
 }
 
 CommunityCards {
