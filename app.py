@@ -5,8 +5,10 @@ from textual.binding import Binding
 from textual.containers import Horizontal
 from textual.widgets import Footer, Header
 
+from screens import ConfigScreen
 from utils.config import load_theme, save_theme
 from widgets import (
+    AnswerPanel,
     CommunityCards,
     PlayerHand,
     PlayingCard,
@@ -29,6 +31,7 @@ class PokertoolsApp(App):
         Binding("n", "next", "Next round"),
         Binding("s", "hide_details", "Hide details"),
         Binding("s", "show_details", "Show details"),
+        Binding("c", "show_config", "Configuration"),
         Binding("escape", "blur", "Remove focus", show=False),
         Binding("q", "quit", "Quit"),
     ]
@@ -102,6 +105,9 @@ class PokertoolsApp(App):
         """Reveal the side panel's details."""
         self.query_one(SidePanel).hidden = False
         self.refresh_bindings()
+
+    def on_answer_panel_submitted(self, message: AnswerPanel.Submitted) -> None:
+        self.query_one(SidePanel).show_result(message.odds_against, message.outs)
 
     def _refresh_side_panel(self) -> None:
         self.query_one(SidePanel).refresh_info(

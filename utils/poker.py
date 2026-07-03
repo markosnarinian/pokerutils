@@ -248,6 +248,8 @@ class Summary:
     hand_desc: str
     draws_text: str
     unseen: int
+    outs: int
+    odds_against: float
 
 
 def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
@@ -267,8 +269,10 @@ def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
     unseen = DECK_SIZE - len(known)
     cards_to_come = {3: 2, 4: 1}.get(len(revealed), 0)
 
+    outs = 0
     if cards_to_come and known:
         draws = detect_draws(known, unseen, cards_to_come)
+        outs = sum(draw.outs for draw in draws if draw.chance is None)
         if draws:
             lines = []
             for draw in draws:
@@ -287,4 +291,62 @@ def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
     else:
         draws_text = "_--_"
 
-    return Summary(hole_text=hole_text, hand_desc=hand_desc, draws_text=draws_text, unseen=unseen)
+    _, odds_against = draw_odds(outs, unseen, cards_to_come)
+
+    return Summary(
+        hole_text=hole_text,
+        hand_desc=hand_desc,
+        draws_text=draws_text,
+        unseen=unseen,
+        outs=outs,
+        odds_against=odds_against,
+    )
+
+
+def parse_outs(text: str) -> int | None:
+    """Parse a user-entered outs count, or None if it isn't a valid integer."""
+    try:
+        return int(text.strip())
+    except ValueError:
+        return None
+
+
+def parse_odds_against(text: str) -> float | None:
+    """Parse a user-entered "odds against" value, e.g. "4:1" or "4", or None if invalid."""
+    text = text.strip()
+    if not text:
+        return None
+    if ":" in text:
+        left, _, right = text.partition(":")
+        try:
+            left_value, right_value = float(left.strip()), float(right.strip())
+        except ValueError:
+            return None
+        return left_value / right_value if right_value else None
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+@dataclass
+class AnswerResult:
+    outs_correct: bool
+    odds_against_correct: bool
+
+
+def grade_answer(
+    outs_text: str, odds_against_text: str, summary: Summary, odds_error_margin: float
+) -> AnswerResult:
+    """Compare the player's submitted outs and odds against the actual values."""
+    outs_correct = parse_outs(outs_text) == summary.outs
+
+    parsed_odds = parse_odds_against(odds_against_text)
+    if parsed_odds is None:
+        odds_against_correct = False
+    elif math.isinf(summary.odds_against):
+        odds_against_correct = math.isinf(parsed_odds)
+    else:
+        odds_against_correct = abs(parsed_odds - summary.odds_against) <= odds_error_margin
+
+    return AnswerResult(outs_correct=outs_correct, odds_against_correct=odds_against_correct)
