@@ -1,3 +1,3 @@
 def load_readme() -> str:
-    with open("README.md") as file:
+    with open("src/README.md") as file:
         return file.read()
