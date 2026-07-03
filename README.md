@@ -12,13 +12,13 @@ A terminal app for practicing poker hand reading — deal a hand, reveal the boa
 
 ## Controls
 
-| Key      | Action                    |
-| -------- | -------------------------- |
-| `d`      | Deal a fresh hand           |
-| `n`      | Reveal the next street      |
-| `s`      | Show / hide draw details    |
-| `escape` | Clear focus                 |
-| `q`      | Quit                        |
+| Key      | Action                   |
+| -------- | ------------------------ |
+| `d`      | Deal a fresh hand        |
+| `n`      | Reveal the next street   |
+| `s`      | Show / hide draw details |
+| `escape` | Clear focus              |
+| `q`      | Quit                     |
 
 ## Getting started
 
