@@ -3,6 +3,7 @@ from textual.binding import Binding
 from textual.widgets import Footer, Header, Markdown
 
 from .screens.outs_odds import OutsOdds
+from .screens.table_trainer import TableTrainer
 from .utils.config import load_theme, save_theme
 from .utils.readme import load_readme
 
@@ -14,10 +15,11 @@ class PokertoolsApp(App):
 
     AUTO_FOCUS = None
 
-    SCREENS = {"outs_odds": OutsOdds}
+    SCREENS = {"outs_odds": OutsOdds, "table_trainer": TableTrainer}
 
     BINDINGS = [
         ("o", "push_screen('outs_odds')", "Outs/Odds"),
+        ("t", "push_screen('table_trainer')", "Table trainer"),
         Binding("escape", "blur", "Remove focus", show=True),
         ("q", "quit", "Quit"),
     ]
@@ -32,9 +34,9 @@ class PokertoolsApp(App):
         save_theme(theme)
 
     def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
-        """Disable navigation to the exercise while it is already open."""
-        if action == "push_screen" and parameters == ("outs_odds",):
-            return not isinstance(self.screen, OutsOdds)
+        """Open exercises from the home screen, without stacking modes."""
+        if action == "push_screen":
+            return not isinstance(self.screen, (OutsOdds, TableTrainer))
         return True
 
     def compose(self) -> ComposeResult:

@@ -19,6 +19,7 @@ A terminal app for practicing Texas Hold'em hand reading — deal a hand, reveal
 | `n`      | Reveal the next street   |
 | `s`      | Show / hide draw details |
 | `o`      | Open the odds exercise   |
+| `t`      | Open the table trainer   |
 | `r`      | Return to the README     |
 | `escape` | Clear focus              |
 | `q`      | Quit                     |
@@ -29,6 +30,55 @@ Requires Python 3.13+ and [uv](https://docs.astral.sh/uv/).
 
 ```sh
 uv run src/main.py
+```
+
+## Table trainer
+
+Press `t` from the home screen. You sit with five simulated opponents with tight,
+loose, aggressive, passive, and balanced tendencies. These are lightweight
+randomized policies, not live humans or trained human-behavior models; they use
+only their own cards and the public board.
+
+- Press `n` or **Next action** to observe one opponent action. On your turn, use
+  **Fold**, **Check / Call**, or enter a street-total amount and **Bet / Raise**.
+- Track the pot from the action history, including the small blind (1), big blind
+  (2), and outstanding bets. Enter your answer and use **Check / Reveal**.
+- At priced decisions, practice pot odds as `pot before calling / cost to call`.
+  Feedback also shows break-even equity: `call / (pot + call)`.
+- On the flop and turn, an available direct draw supplies an outs count; calculate
+  odds against hitting on the **next card**, not by the river. Hidden opponent
+  cards are still counted as unseen. Completing a draw does not guarantee winning.
+- Ratios accept `4.2` or `4.2:1`, with a tolerance of 0.1; pot totals must be exact.
+- All-ins and side pots are settled by the engine, but their pot-odds questions
+  are omitted to avoid misleading eligibility calculations. There is no rake.
+- After settlement, **New hand** rotates the button and resets all six stacks to
+  200 chips (100 big blinds). These are independent drills, not a bankroll session.
+
+Use a terminal at least 110 columns wide for all action controls at once; smaller
+terminals can scroll the controls horizontally and the page vertically.
+
+### Engine and historical hands
+
+The rules engine is [PokerKit](https://github.com/uoftcprg/pokerkit), which supports
+Python 3.13, arbitrary no-limit sizing, forced blinds, all-ins, side pots, and
+showdown settlement. We also considered
+[PyPokerEngine](https://github.com/ishikota/PyPokerEngine) (older Python support and
+example bots rather than human models) and [RLCard](https://github.com/datamllab/rlcard)
+(RL-oriented, abstracted bet sizes, no bundled human-like six-seat NLHE policy).
+
+[Poker Hand History (PHH)](https://phh.readthedocs.io/) is an open, TOML-based
+interchange format, not a universal standard used by every poker site.
+[PokerKit supports PHH loading and action-by-action replay](https://pokerkit.readthedocs.io/en/stable/notation.html),
+as well as parsers for some site-specific histories. Real histories could provide
+authentic opponent decisions in a future replay exercise. They may omit hidden
+cards, and recorded actions cannot simply continue after the learner takes a
+different action. **Import/replay is not implemented in this mode**; no historical
+dataset is downloaded or bundled.
+
+## Tests
+
+```sh
+PYTHONPATH=src uv run python -m unittest discover -s tests -v
 ```
 
 ## Tech stack
