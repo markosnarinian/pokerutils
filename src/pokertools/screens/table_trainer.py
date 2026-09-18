@@ -6,6 +6,7 @@ from typing import ClassVar
 
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.css.query import NoMatches
 from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Input, Label, Static
 
@@ -16,9 +17,22 @@ from ..widgets.playing_card import PlayingCard, Rank, Suit
 class TableTrainer(Screen):
     BINDINGS: ClassVar = [
         ("r", "app.pop_screen", "Return"),
+        ("escape", "blur", "Remove focus"),
         ("n", "step", "Next action"),
+        ("f", "press('fold')", "Fold"),
+        ("c", "press('call')", "Check/Call"),
+        ("b", "focus_field('raise-to')", "Bet/Raise"),
+        ("h", "press('new')", "New hand"),
+        ("p", "focus_field('pot')", "Pot"),
+        ("e", "focus_field('pot-odds')", "Pot odds"),
+        ("d", "focus_field('against')", "Draw odds"),
+        ("v", "press('reveal')", "Reveal"),
         ("a", "toggle_auto", "Auto-continue"),
+        ("i", "focus_field('average-delay')", "Avg delay"),
+        ("j", "focus_field('delay-jitter')", "Jitter"),
+        ("u", "press('apply-timing')", "Apply timing"),
     ]
+    ANSWER_FIELDS: ClassVar = ("pot", "pot-odds", "against")
     DEFAULT_CSS = """
     TableTrainer #trainer { height: 1fr; padding: 1 2; overflow-x: auto; }
     TableTrainer #pacing { height: auto; overflow-x: auto; }
@@ -44,12 +58,12 @@ class TableTrainer(Screen):
         yield Header()
         with VerticalScroll(id="trainer"):
             with Horizontal(id="pacing"):
-                yield Button("Auto: Off", id="auto")
-                yield Label("Average (s)")
+                yield Button("Auto: Off (A)", id="auto")
+                yield Label("Average s (I)")
                 yield Input("3", id="average-delay", type="number")
-                yield Label("Jitter ± (s)")
+                yield Label("Jitter ± s (J)")
                 yield Input("1", id="delay-jitter", type="number")
-                yield Button("Apply timing", id="apply-timing")
+                yield Button("Apply timing (U)", id="apply-timing")
             yield Static("Auto-continue off", id="auto-status", markup=False)
             with Vertical(id="felt"):
                 for row in ((2, 3, 4), (1, 0, 5)):
@@ -68,18 +82,18 @@ class TableTrainer(Screen):
                                             Rank.ACE, Suit.SPADES, face_up=False
                                         )
             with Horizontal(id="actions"):
-                yield Button("Next action", id="step")
-                yield Button("Fold", id="fold")
-                yield Button("Check / Call", id="call")
-                yield Input(placeholder="Raise TO total", id="raise-to", type="integer")
-                yield Button("Bet / Raise", id="raise")
-                yield Button("New hand", id="new")
+                yield Button("Next action (N)", id="step")
+                yield Button("Fold (F)", id="fold")
+                yield Button("Check / Call (C)", id="call")
+                yield Input(placeholder="Raise TO total (B)", id="raise-to", type="integer")
+                yield Button("Bet / Raise (B)", id="raise")
+                yield Button("New hand (H)", id="new")
             yield Static(id="prompt", markup=False)
             with Horizontal(id="questions"):
-                yield Input(placeholder="Pot (chips)", id="pot", type="number")
-                yield Input(placeholder="Pot odds X:1", id="pot-odds")
-                yield Input(placeholder="Draw against X:1", id="against")
-                yield Button("Check / Reveal", id="reveal")
+                yield Input(placeholder="Pot (chips) (P)", id="pot", type="number")
+                yield Input(placeholder="Pot odds X:1 (E)", id="pot-odds")
+                yield Input(placeholder="Draw against X:1 (D)", id="against")
+                yield Button("Check / Reveal (V)", id="reveal")
             yield Static(id="feedback", markup=False)
             yield Static(id="history", markup=False)
         yield Footer()
@@ -145,9 +159,9 @@ class TableTrainer(Screen):
             hero_turn and s.can_complete_bet_or_raise_to()
         )
         self.query_one("#raise-to", Input).placeholder = (
-            f"To: {s.min_completion_betting_or_raising_to_amount}–{s.max_completion_betting_or_raising_to_amount}"
+            f"To: {s.min_completion_betting_or_raising_to_amount}–{s.max_completion_betting_or_raising_to_amount} (B)"
             if hero_turn and s.can_complete_bet_or_raise_to()
-            else "Raise TO total"
+            else "Raise TO total (B)"
         )
         draw = g.draw_question()
         prompt = "Track the pot, including all current bets. Ratios accept X or X:1.\n"
@@ -173,6 +187,7 @@ class TableTrainer(Screen):
             "ACTION HISTORY\n" + "\n".join(g.history)
         )
         self.schedule_auto()
+        self.refresh_bindings()
 
     def cancel_auto(self):
         self.timer_generation += 1
@@ -214,7 +229,7 @@ class TableTrainer(Screen):
     def action_toggle_auto(self):
         self.auto_continue = not self.auto_continue
         self.query_one("#auto", Button).label = (
-            "Auto: On" if self.auto_continue else "Auto: Off"
+            "Auto: On (A)" if self.auto_continue else "Auto: Off (A)"
         )
         self.schedule_auto()
 
@@ -271,8 +286,44 @@ class TableTrainer(Screen):
         self.game.step()
         self.render_game()
 
+    def check_action(self, action: str, parameters: tuple[object, ...]) -> bool | None:
+        """Grey out shortcuts whose button or field is currently disabled."""
+        if action == "step":
+            target = "step"
+        elif action in ("press", "focus_field"):
+            target = parameters[0]
+        else:
+            return True
+        try:
+            return None if self.query_one(f"#{target}").disabled else True
+        except NoMatches:
+            return True
+
+    def action_press(self, button_id: str):
+        self.perform(button_id)
+
+    def action_focus_field(self, field_id: str):
+        self.query_one(f"#{field_id}", Input).focus()
+
     def on_button_pressed(self, event: Button.Pressed):
-        action = event.button.id
+        self.perform(event.button.id)
+
+    def on_input_submitted(self, event: Input.Submitted):
+        field = event.input.id
+        if field == "raise-to":
+            self.perform("raise")
+        elif field in ("average-delay", "delay-jitter"):
+            self.perform("apply-timing")
+        elif field in self.ANSWER_FIELDS:
+            remaining = self.ANSWER_FIELDS[self.ANSWER_FIELDS.index(field) + 1 :]
+            for name in remaining:
+                if not self.query_one(f"#{name}", Input).disabled:
+                    self.query_one(f"#{name}", Input).focus()
+                    return
+            self.set_focus(None)
+            self.perform("reveal")
+
+    def perform(self, action: str):
         try:
             if action == "auto":
                 self.action_toggle_auto()

@@ -41,6 +41,29 @@ only their own cards and the public board.
 
 - Press `n` or **Next action** to observe one opponent action. On your turn, use
   **Fold**, **Check / Call**, or enter a street-total amount and **Bet / Raise**.
+
+### Table trainer shortcuts
+
+Every control has a key, shown in its label and the footer. Letters work when no
+field is focused; `escape` clears focus (and `enter` submits a focused field).
+Shortcuts for disabled controls are greyed out.
+
+| Key      | Action                                                              |
+| -------- | ------------------------------------------------------------------- |
+| `n`      | Next opponent action                                                |
+| `f`      | Fold                                                                |
+| `c`      | Check / Call                                                        |
+| `b`      | Focus the raise field; `enter` bets / raises                        |
+| `h`      | New hand                                                            |
+| `p`      | Focus the pot answer                                                |
+| `e`      | Focus the pot odds answer                                           |
+| `d`      | Focus the draw odds answer                                          |
+| `v`      | Check / Reveal (`enter` in an answer moves on, then reveals)        |
+| `a`      | Toggle auto-continue                                                |
+| `i`, `j` | Focus average delay / jitter (`enter` applies timing)               |
+| `u`      | Apply timing                                                        |
+| `escape` | Clear focus                                                         |
+| `r`      | Return to the README                                                |
 - Press `a` or **Auto: Off/On** to toggle automatic opponent actions (off by
   default). It pauses for your turn and at hand completion, and resumes after
   your action or when you start a new hand. Leaving the screen stops its timer.
