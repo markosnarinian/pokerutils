@@ -1,12 +1,13 @@
 """An action-by-action table and hidden-answer arithmetic practice."""
 
 import math
+import random
 from typing import ClassVar
 
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Button, Footer, Header, Input, Static
+from textual.widgets import Button, Footer, Header, Input, Label, Static
 
 from ..utils.simulation import Simulation
 from ..widgets.playing_card import PlayingCard, Rank, Suit
@@ -16,9 +17,14 @@ class TableTrainer(Screen):
     BINDINGS: ClassVar = [
         ("r", "app.pop_screen", "Return"),
         ("n", "step", "Next action"),
+        ("a", "toggle_auto", "Auto-continue"),
     ]
     DEFAULT_CSS = """
     TableTrainer #trainer { height: 1fr; padding: 1 2; overflow-x: auto; }
+    TableTrainer #pacing { height: auto; overflow-x: auto; }
+    TableTrainer #pacing Label { padding: 1 1 0 0; }
+    TableTrainer #pacing Input { width: 12; }
+    TableTrainer #auto-status { height: auto; margin-bottom: 1; }
     TableTrainer #felt { border: round $success; padding: 1 2; height: auto; min-width: 87; }
     TableTrainer .seat-row { height: auto; }
     TableTrainer .seat { width: 1fr; height: auto; border: round $surface-lighten-2; padding: 0 1; }
@@ -37,6 +43,14 @@ class TableTrainer(Screen):
     def compose(self) -> ComposeResult:
         yield Header()
         with VerticalScroll(id="trainer"):
+            with Horizontal(id="pacing"):
+                yield Button("Auto: Off", id="auto")
+                yield Label("Average (s)")
+                yield Input("3", id="average-delay", type="number")
+                yield Label("Jitter ± (s)")
+                yield Input("1", id="delay-jitter", type="number")
+                yield Button("Apply timing", id="apply-timing")
+            yield Static("Auto-continue off", id="auto-status", markup=False)
             with Vertical(id="felt"):
                 for row in ((2, 3, 4), (1, 0, 5)):
                     if row == (1, 0, 5):
@@ -71,6 +85,11 @@ class TableTrainer(Screen):
         yield Footer()
 
     def on_mount(self):
+        self.auto_continue = False
+        self.average_delay = 3.0
+        self.delay_jitter = 1.0
+        self.auto_timer = None
+        self.timer_generation = 0
         self.game = Simulation()
         self.render_game()
 
@@ -105,7 +124,7 @@ class TableTrainer(Screen):
                 + (
                     f" · Call {s.checking_or_calling_amount}"
                     if s.actor_index == g.hero
-                    else " · press Next action"
+                    else " · Next action or auto-continue"
                 )
             )
         else:
@@ -153,6 +172,82 @@ class TableTrainer(Screen):
         self.query_one("#history", Static).update(
             "ACTION HISTORY\n" + "\n".join(g.history)
         )
+        self.schedule_auto()
+
+    def cancel_auto(self):
+        self.timer_generation += 1
+        if self.auto_timer is not None:
+            self.auto_timer.stop()
+            self.auto_timer = None
+
+    def schedule_auto(self):
+        self.cancel_auto()
+        status = self.query_one("#auto-status", Static)
+        if not self.auto_continue:
+            status.update("Auto-continue off · Press A to enable")
+            return
+        if self.app.screen is not self:
+            return
+        if not self.game.state.status:
+            status.update("Auto-continue paused · Hand complete")
+            return
+        if self.game.state.actor_index == self.game.hero:
+            status.update("Auto-continue paused · Your turn")
+            return
+        delay = random.uniform(
+            self.average_delay - self.delay_jitter,
+            self.average_delay + self.delay_jitter,
+        )
+        generation = self.timer_generation
+
+        def advance():
+            if (
+                generation == self.timer_generation
+                and self.app.screen is self
+                and self.auto_continue
+            ):
+                self.action_step()
+
+        self.auto_timer = self.set_timer(delay, advance)
+        status.update(f"Auto-continue on · Next action in {delay:.1f}s · A to pause")
+
+    def action_toggle_auto(self):
+        self.auto_continue = not self.auto_continue
+        self.query_one("#auto", Button).label = (
+            "Auto: On" if self.auto_continue else "Auto: Off"
+        )
+        self.schedule_auto()
+
+    def apply_timing(self):
+        try:
+            average = float(self.query_one("#average-delay", Input).value)
+            jitter = float(self.query_one("#delay-jitter", Input).value)
+            if not (
+                math.isfinite(average)
+                and math.isfinite(jitter)
+                and math.isfinite(average + jitter)
+                and jitter >= 0
+                and average - jitter >= 0.1
+            ):
+                raise ValueError
+        except ValueError:
+            self.query_one("#auto-status", Static).update(
+                "Invalid timing: use finite seconds, jitter ≥ 0 and average − jitter ≥ 0.1. Previous timing retained."
+            )
+            return
+        self.average_delay, self.delay_jitter = average, jitter
+        self.schedule_auto()
+
+    def on_screen_suspend(self):
+        if hasattr(self, "game"):
+            self.cancel_auto()
+
+    def on_screen_resume(self):
+        if hasattr(self, "game"):
+            self.schedule_auto()
+
+    def on_unmount(self):
+        self.cancel_auto()
 
     @staticmethod
     def update_card(widget: PlayingCard, card):
@@ -179,6 +274,12 @@ class TableTrainer(Screen):
     def on_button_pressed(self, event: Button.Pressed):
         action = event.button.id
         try:
+            if action == "auto":
+                self.action_toggle_auto()
+                return
+            if action == "apply-timing":
+                self.apply_timing()
+                return
             if action == "reveal":
                 self.reveal()
                 return

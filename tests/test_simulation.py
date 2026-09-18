@@ -108,6 +108,108 @@ class SimulationTests(unittest.TestCase):
 
 
 class TrainerTests(unittest.IsolatedAsyncioTestCase):
+    async def test_auto_timing_cancellation_and_validation(self):
+        with (
+            patch("pokertools.app.save_theme"),
+            patch("pokertools.app.load_theme", return_value=None),
+        ):
+            app = PokertoolsApp()
+            async with app.run_test(size=(120, 60)) as pilot:
+                await pilot.press("t")
+                await pilot.pause()
+                screen = app.screen
+                self.assertFalse(screen.auto_continue)
+                with (
+                    patch.object(screen, "set_timer") as timer,
+                    patch(
+                        "pokertools.screens.table_trainer.random.uniform",
+                        return_value=3.7,
+                    ) as uniform,
+                ):
+                    screen.action_toggle_auto()
+                    uniform.assert_called_with(2.0, 4.0)
+                    self.assertEqual(timer.call_args.args[0], 3.7)
+                    stale = timer.call_args.args[1]
+                    screen.action_toggle_auto()
+                    timer.return_value.stop.assert_called()
+                    actor = screen.game.state.actor_index
+                    stale()
+                    self.assertEqual(screen.game.state.actor_index, actor)
+                    screen.query_one("#average-delay", Input).value = "5"
+                    screen.query_one("#delay-jitter", Input).value = "2"
+                    screen.apply_timing()
+                    screen.action_toggle_auto()
+                    uniform.assert_called_with(3.0, 7.0)
+                    stale = timer.call_args.args[1]
+                    screen.action_step()
+                    actor = screen.game.state.actor_index
+                    stale()
+                    self.assertEqual(screen.game.state.actor_index, actor)
+                    for average, jitter in (
+                        ("0", "0"),
+                        ("2", "3"),
+                        ("3", "-1"),
+                        ("nan", "0"),
+                        ("inf", "0"),
+                        ("", "1"),
+                    ):
+                        screen.query_one("#average-delay", Input).value = average
+                        screen.query_one("#delay-jitter", Input).value = jitter
+                        screen.apply_timing()
+                        self.assertEqual(
+                            (screen.average_delay, screen.delay_jitter), (5, 2)
+                        )
+                        self.assertIn(
+                            "Invalid timing",
+                            str(screen.query_one("#auto-status", Static).content),
+                        )
+                    stale = timer.call_args.args[1]
+                    await app.pop_screen()
+                    await pilot.pause()
+                    actor = screen.game.state.actor_index
+                    stale()
+                    self.assertEqual(screen.game.state.actor_index, actor)
+                    self.assertIsNone(screen.auto_timer)
+
+    async def test_auto_advances_and_waits_for_hero(self):
+        with (
+            patch("pokertools.app.save_theme"),
+            patch("pokertools.app.load_theme", return_value=None),
+        ):
+            app = PokertoolsApp()
+            async with app.run_test(size=(120, 60)) as pilot:
+                await pilot.press("t")
+                await pilot.pause()
+                screen = app.screen
+                screen.query_one("#average-delay", Input).value = "0.1"
+                screen.query_one("#delay-jitter", Input).value = "0"
+                screen.apply_timing()
+                with patch.object(
+                    screen.game, "step", side_effect=lambda: screen.game.act("call")
+                ):
+                    screen.action_toggle_auto()
+                    await pilot.pause(0.6)
+                    self.assertEqual(screen.game.state.actor_index, screen.game.hero)
+                    self.assertIsNone(screen.auto_timer)
+                    self.assertIn(
+                        "Your turn",
+                        str(screen.query_one("#auto-status", Static).content),
+                    )
+                    before = len(screen.game.history)
+                    await pilot.pause(0.2)
+                    self.assertEqual(len(screen.game.history), before)
+                    screen.game.act("call")
+                    screen.render_game()
+                    self.assertIsNotNone(screen.auto_timer)
+                    while screen.game.state.status:
+                        screen.game.act("call")
+                    screen.render_game()
+                    self.assertIsNone(screen.auto_timer)
+                    self.assertIn(
+                        "Hand complete",
+                        str(screen.query_one("#auto-status", Static).content),
+                    )
+
     async def test_card_widgets_reveal_and_reset(self):
         with (
             patch("pokertools.app.save_theme"),

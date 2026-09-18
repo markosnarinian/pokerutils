@@ -41,6 +41,15 @@ only their own cards and the public board.
 
 - Press `n` or **Next action** to observe one opponent action. On your turn, use
   **Fold**, **Check / Call**, or enter a street-total amount and **Bet / Raise**.
+- Press `a` or **Auto: Off/On** to toggle automatic opponent actions (off by
+  default). It pauses for your turn and at hand completion, and resumes after
+  your action or when you start a new hand. Leaving the screen stops its timer.
+- Set **Average (s)** and **Jitter ± (s)**, then **Apply timing** to override the
+  pace. Each delay is sampled uniformly from average − jitter to average + jitter.
+  Defaults are 3 ± 1 seconds (2–4 seconds), a practice pace rather than a measured
+  human average. Use zero jitter for a fixed delay; the minimum delay must be at
+  least 0.1 seconds. Settings last for the current app session. Manual steps and
+  timing changes replace the pending timer; pause auto to study between actions.
 - Track the pot from the action history, including the small blind (1), big blind
   (2), and outstanding bets. Enter your answer and use **Check / Reveal**.
 - At priced decisions, practice pot odds as `pot before calling / cost to call`.
