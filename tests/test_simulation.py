@@ -2,11 +2,12 @@ import random
 import unittest
 from unittest.mock import patch
 
-from pokerkit import Automation, NoLimitTexasHoldem
+from pokerkit import Automation, Card, NoLimitTexasHoldem
 from textual.widgets import Button, Input, Static
 
 from pokertools.app import PokertoolsApp
 from pokertools.utils.simulation import Simulation
+from pokertools.widgets.playing_card import PlayingCard, Rank, Suit
 
 
 class SimulationTests(unittest.TestCase):
@@ -107,6 +108,48 @@ class SimulationTests(unittest.TestCase):
 
 
 class TrainerTests(unittest.IsolatedAsyncioTestCase):
+    async def test_card_widgets_reveal_and_reset(self):
+        with (
+            patch("pokertools.app.save_theme"),
+            patch("pokertools.app.load_theme", return_value=None),
+        ):
+            app = PokertoolsApp()
+            async with app.run_test(size=(120, 48)) as pilot:
+                await pilot.press("t")
+                await pilot.pause()
+                screen = app.screen
+                g = screen.game
+                g.hero_cards = tuple(Card.parse("ThAc"))
+                screen.render_game()
+                hero = list(screen.query_one("#seat-0").query(PlayingCard))
+                self.assertEqual(
+                    [(c.rank, c.suit, c.face_up) for c in hero],
+                    [(Rank.TEN, Suit.HEARTS, True), (Rank.ACE, Suit.CLUBS, True)],
+                )
+                board = list(screen.query_one("#board-cards").query(PlayingCard))
+                self.assertEqual(len(board), 5)
+                for visible in (0, 3, 4, 5):
+                    while len(g.board) < visible:
+                        g.act("call")
+                    screen.render_game()
+                    self.assertEqual(
+                        [c.face_up for c in board],
+                        [True] * visible + [False] * (5 - visible),
+                    )
+                    for seat in range(1, 6):
+                        self.assertTrue(
+                            all(
+                                not c.face_up
+                                for c in screen.query_one(f"#seat-{seat}").query(
+                                    PlayingCard
+                                )
+                            )
+                        )
+                g.new_hand()
+                screen.render_game()
+                self.assertTrue(all(not c.face_up for c in board))
+                self.assertTrue(all(c.face_up for c in hero))
+
     async def test_navigation_answers_invalid_raise_and_completion(self):
         with (
             patch("pokertools.app.save_theme"),
@@ -119,6 +162,8 @@ class TrainerTests(unittest.IsolatedAsyncioTestCase):
                 screen = app.screen
                 self.assertTrue(screen.query_one("#call", Button).disabled)
                 screen.query_one("#pot", Input).value = "3"
+                screen.query_one("#reveal").scroll_visible(animate=False)
+                await pilot.pause()
                 await pilot.click("#reveal")
                 self.assertIn(
                     "Correct", str(screen.query_one("#feedback", Static).content)

@@ -9,6 +9,7 @@ from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Input, Static
 
 from ..utils.simulation import Simulation
+from ..widgets.playing_card import PlayingCard, Rank, Suit
 
 
 class TableTrainer(Screen):
@@ -17,10 +18,12 @@ class TableTrainer(Screen):
         ("n", "step", "Next action"),
     ]
     DEFAULT_CSS = """
-    TableTrainer #trainer { height: 1fr; padding: 1 2; }
-    TableTrainer #felt { border: round $success; padding: 1 2; height: auto; }
+    TableTrainer #trainer { height: 1fr; padding: 1 2; overflow-x: auto; }
+    TableTrainer #felt { border: round $success; padding: 1 2; height: auto; min-width: 87; }
     TableTrainer .seat-row { height: auto; }
     TableTrainer .seat { width: 1fr; height: auto; border: round $surface-lighten-2; padding: 0 1; }
+    TableTrainer .cards { height: 7; align-horizontal: center; }
+    TableTrainer .seat-info { height: auto; text-align: center; }
     TableTrainer .acting { border: round $warning; }
     TableTrainer #board { height: auto; text-align: center; padding: 1 0; }
     TableTrainer #actions { height: auto; margin: 1 0; layout: horizontal; overflow-x: auto; }
@@ -35,13 +38,21 @@ class TableTrainer(Screen):
         yield Header()
         with VerticalScroll(id="trainer"):
             with Vertical(id="felt"):
-                with Horizontal(classes="seat-row"):
-                    for seat in (2, 3, 4):
-                        yield Static(id=f"seat-{seat}", classes="seat", markup=False)
-                yield Static(id="board", markup=False)
-                with Horizontal(classes="seat-row"):
-                    for seat in (1, 0, 5):
-                        yield Static(id=f"seat-{seat}", classes="seat", markup=False)
+                for row in ((2, 3, 4), (1, 0, 5)):
+                    if row == (1, 0, 5):
+                        yield Static(id="board", markup=False)
+                        with Horizontal(id="board-cards", classes="cards"):
+                            for _ in range(5):
+                                yield PlayingCard(Rank.ACE, Suit.SPADES, face_up=False)
+                    with Horizontal(classes="seat-row"):
+                        for seat in row:
+                            with Vertical(id=f"seat-{seat}", classes="seat"):
+                                yield Static(classes="seat-info", markup=False)
+                                with Horizontal(classes="cards"):
+                                    for _ in range(2):
+                                        yield PlayingCard(
+                                            Rank.ACE, Suit.SPADES, face_up=False
+                                        )
             with Horizontal(id="actions"):
                 yield Button("Next action", id="step")
                 yield Button("Fold", id="fold")
@@ -79,13 +90,15 @@ class TableTrainer(Screen):
                 if not s.stacks[i]
                 else "in"
             )
-            cards = " ".join(map(repr, g.hero_cards)) if i == g.hero else "▧ ▧"
-            seat = self.query_one(f"#seat-{g.seats[i]}", Static)
-            seat.update(
-                f"{'▶ ' if s.actor_index == i else ''}{g.name(i)} · {position}\n{cards} · {status}\nStack {s.stacks[i]} · Bet {s.bets[i]}"
+            seat = self.query_one(f"#seat-{g.seats[i]}", Vertical)
+            seat.query_one(Static).update(
+                f"{'▶ ' if s.actor_index == i else ''}{g.name(i)} · {position} · {status}\nStack {s.stacks[i]} · Bet {s.bets[i]}"
             )
+            for index, card in enumerate(seat.query(PlayingCard)):
+                self.update_card(card, g.hero_cards[index] if i == g.hero else None)
             seat.set_class(s.actor_index == i, "acting")
-        lines += ["Board: " + ("  ".join(map(repr, g.board)) or "— — — — —")]
+        for index, card in enumerate(self.query_one("#board-cards").query(PlayingCard)):
+            self.update_card(card, g.board[index] if index < len(g.board) else None)
         if s.status:
             lines.append(
                 f"To act: {g.name(s.actor_index)}"
@@ -140,6 +153,19 @@ class TableTrainer(Screen):
         self.query_one("#history", Static).update(
             "ACTION HISTORY\n" + "\n".join(g.history)
         )
+
+    @staticmethod
+    def update_card(widget: PlayingCard, card):
+        """Only pass visible cards into the UI; unknown cards remain face-down."""
+        widget.face_up = card is not None
+        if card is not None:
+            widget.rank = Rank("10" if card.rank.value == "T" else card.rank.value)
+            widget.suit = {
+                "c": Suit.CLUBS,
+                "d": Suit.DIAMONDS,
+                "h": Suit.HEARTS,
+                "s": Suit.SPADES,
+            }[card.suit.value]
 
     def action_blur(self):
         self.set_focus(None)
