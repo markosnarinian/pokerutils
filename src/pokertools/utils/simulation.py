@@ -38,6 +38,7 @@ class Simulation:
             6,
         )
         self.hero_cards = tuple(self.state.hole_cards[self.hero])
+        self.folded = set()
         self.history = [
             f"Hand {self.hand} · fresh stacks 200 · blinds 1/2",
             f"{self.name(0)} posts small blind 1",
@@ -63,6 +64,7 @@ class Simulation:
         street = self.street
         if action == "fold":
             state.fold()
+            self.folded.add(actor)
             description = "folds"
         elif action == "call":
             cost = state.checking_or_calling_amount

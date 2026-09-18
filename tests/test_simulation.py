@@ -277,6 +277,11 @@ class TrainerTests(unittest.IsolatedAsyncioTestCase):
                 screen.render_game()
                 await pilot.pause()
                 self.assertFalse(screen.query_one("#call", Button).disabled)
+                folded_seat = screen.query_one(f"#seat-{g.seats[3]}")
+                self.assertTrue(folded_seat.has_class("folded"))
+                self.assertFalse(
+                    screen.query_one(f"#seat-{g.seats[2]}").has_class("folded")
+                )
                 screen.query_one("#pot-odds", Input).value = "2.43:1"
                 screen.reveal()
                 self.assertIn(
@@ -298,8 +303,11 @@ class TrainerTests(unittest.IsolatedAsyncioTestCase):
                 screen.render_game()
                 await pilot.pause()
                 self.assertFalse(screen.query_one("#new", Button).disabled)
+                self.assertTrue(folded_seat.has_class("folded"))
+                self.assertIn("folded", str(folded_seat.query_one(Static).content))
                 await pilot.click("#new")
                 self.assertEqual(g.hand, 2)
+                self.assertFalse(screen.query(".folded"))
                 await pilot.press("escape", "r")
                 self.assertIsNot(app.screen, screen)
 

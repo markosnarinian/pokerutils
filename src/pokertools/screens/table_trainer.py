@@ -45,6 +45,9 @@ class TableTrainer(Screen):
     TableTrainer .cards { height: 7; align-horizontal: center; }
     TableTrainer .seat-info { height: auto; text-align: center; }
     TableTrainer .acting { border: round $warning; }
+    TableTrainer .folded { border: dashed $surface-lighten-1; }
+    TableTrainer .folded .seat-info { color: $text-disabled; }
+    TableTrainer .folded PlayingCard { opacity: 25%; }
     TableTrainer #board { height: auto; text-align: center; padding: 1 0; }
     TableTrainer #actions { height: auto; margin: 1 0; layout: horizontal; overflow-x: auto; }
     TableTrainer Button { min-width: 12; margin-right: 1; }
@@ -114,11 +117,12 @@ class TableTrainer(Screen):
         ]
         for i in range(6):
             position = "SB" if i == 0 else "BB" if i == 1 else "BTN" if i == 5 else ""
+            folded = i in g.folded
             status = (
-                "done"
+                "folded"
+                if folded
+                else "done"
                 if not s.status
-                else "folded"
-                if not s.statuses[i]
                 else "ALL-IN"
                 if not s.stacks[i]
                 else "in"
@@ -130,6 +134,7 @@ class TableTrainer(Screen):
             for index, card in enumerate(seat.query(PlayingCard)):
                 self.update_card(card, g.hero_cards[index] if i == g.hero else None)
             seat.set_class(s.actor_index == i, "acting")
+            seat.set_class(folded, "folded")
         for index, card in enumerate(self.query_one("#board-cards").query(PlayingCard)):
             self.update_card(card, g.board[index] if index < len(g.board) else None)
         if s.status:
