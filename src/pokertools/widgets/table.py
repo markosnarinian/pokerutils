@@ -5,9 +5,9 @@ from __future__ import annotations
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
 
-from widgets.answer_panel import AnswerPanel
-from widgets.community_cards import CommunityCards
-from widgets.player_hand import PlayerHand
+from .answer_panel import AnswerPanel
+from .community_cards import CommunityCards
+from .player_hand import PlayerHand
 
 
 class Table(Vertical):

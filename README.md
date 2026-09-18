@@ -17,6 +17,8 @@ A terminal app for practicing poker hand reading — deal a hand, reveal the boa
 | `d`      | Deal a fresh hand        |
 | `n`      | Reveal the next street   |
 | `s`      | Show / hide draw details |
+| `o`      | Open the odds exercise   |
+| `r`      | Return to the README     |
 | `escape` | Clear focus              |
 | `q`      | Quit                     |
 

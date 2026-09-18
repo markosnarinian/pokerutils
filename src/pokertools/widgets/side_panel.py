@@ -7,8 +7,8 @@ from textual.containers import Vertical
 from textual.reactive import reactive
 from textual.widgets import Markdown
 
-from utils.poker import summarize
-from widgets.playing_card import PlayingCard
+from ..utils.poker import summarize
+from .playing_card import PlayingCard
 
 
 class SidePanel(Vertical):
@@ -18,6 +18,12 @@ class SidePanel(Vertical):
 
     def compose(self) -> ComposeResult:
         yield Markdown()
+
+    def watch_hidden(self, hidden: bool) -> None:
+        """Hide the analysis while preserving the panel's layout."""
+        self.set_class(hidden, "-details-hidden")
+        for details in self.query(Markdown):
+            details.display = not hidden
 
     def refresh_info(self, hole: list[PlayingCard], board: list[PlayingCard]) -> None:
         """Recompute and display hand strength, draws, and the unseen-card count."""

@@ -1,9 +1,4 @@
-from app import PokertoolsApp
-
-
-def main():
-    app = PokertoolsApp()
-    app.run()
+from pokertools.main import main
 
 
 if __name__ == "__main__":

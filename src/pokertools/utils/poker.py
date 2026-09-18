@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from itertools import combinations
 from typing import Iterable
 
-from widgets.playing_card import PlayingCard, Rank, Suit
+from ..widgets.playing_card import PlayingCard, Rank, Suit
 
 RANK_VALUES = {
     Rank.TWO: 2,

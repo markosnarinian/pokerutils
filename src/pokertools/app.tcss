@@ -2,6 +2,15 @@
     height: 1fr;
 }
 
+Screen {
+    align: center middle;
+}
+
+#readme {
+    padding: 3;
+    max-width: 100;
+}
+
 Table {
     width: 1fr;
 }
@@ -10,6 +19,10 @@ SidePanel {
     width: 45;
     border: round white;
     overflow-y: auto;
+}
+
+SidePanel.-details-hidden {
+    hatch: right $foreground 15%;
 }
 
 CommunityCards {

@@ -1,12 +1,13 @@
 import random
 
-from textual.app import App, ComposeResult
+from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal
+from textual.screen import Screen
 from textual.widgets import Footer, Header
 
-from utils.config import load_theme, save_theme
-from widgets import (
+from ..utils.config import load_theme, save_theme
+from ..widgets import (
     CommunityCards,
     PlayerHand,
     PlayingCard,
@@ -17,20 +18,14 @@ from widgets import (
 )
 
 
-class PokertoolsApp(App):
-    TITLE = "pokertools"
-
-    CSS_PATH = "app.tcss"
-
-    AUTO_FOCUS = None
-
+class OutsOdds(Screen):
     BINDINGS = [
-        Binding("d", "deal", "Deal cards"),
-        Binding("n", "next", "Next round"),
-        Binding("s", "hide_details", "Hide details"),
-        Binding("s", "show_details", "Show details"),
-        Binding("escape", "blur", "Remove focus", show=False),
-        Binding("q", "quit", "Quit"),
+        ("d", "deal", "Deal cards"),
+        ("n", "next", "Next round"),
+        ("s", "hide_details", "Hide details"),
+        ("s", "show_details", "Show details"),
+        ("r", "app.pop_screen", "Return to README"),
+        Binding("escape", "blur", "Unfocus", show=True),
     ]
 
     def __init__(self) -> None:

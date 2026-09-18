@@ -15,6 +15,8 @@ def load_theme() -> str | None:
         data = json.loads(CONFIG_PATH.read_text())
     except (FileNotFoundError, json.JSONDecodeError):
         return None
+    if not isinstance(data, dict):
+        return None
     theme = data.get("theme")
     return theme if isinstance(theme, str) else None
 

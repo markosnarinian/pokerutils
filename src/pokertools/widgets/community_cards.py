@@ -5,7 +5,7 @@ from __future__ import annotations
 from textual.app import ComposeResult
 from textual.containers import Horizontal
 
-from widgets.playing_card import PlayingCard, Rank, Suit
+from .playing_card import PlayingCard, Rank, Suit
 
 
 class CommunityCards(Horizontal):

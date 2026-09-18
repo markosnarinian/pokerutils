@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from textual.app import ComposeResult
 from textual.containers import HorizontalGroup, Vertical
-from textual.widgets import Button, Input, Label, Static
+from textual.widgets import Button, Input, Label
 
 
 class AnswerPanel(Vertical):
