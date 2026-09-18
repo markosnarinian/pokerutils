@@ -1,6 +1,6 @@
 # pokertools
 
-A terminal app for practicing poker hand reading — deal a hand, reveal the board street by street, and see your hand strength, draws, and odds update live.
+A terminal app for practicing Texas Hold'em hand reading — deal a hand, reveal the board street by street, and see your hand strength, draws, and odds update live.
 
 ## Features
 
@@ -9,6 +9,7 @@ A terminal app for practicing poker hand reading — deal a hand, reveal the boa
 - Evaluates your best five-card hand (pair through straight flush, with set-vs-trips and made-straight naming)
 - Detects live draws — flush, straight, gutshot, double gutshot, and backdoor draws — with out counts, hit chance, and odds against
 - Remembers your chosen color theme between sessions
+- Six-seat no-limit Texas Hold'em table trainer with five simulated opponents, legal betting, blinds, and payouts
 
 ## Controls
 
