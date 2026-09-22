@@ -31,6 +31,9 @@ dependencies = [
     "textual>=8.2.8",
 ]
 
+[dependency-groups]
+dev = ["ruff>=0.16.8"]
+
 [project.urls]
 Homepage = "https://github.com/markosnarinian/pokerutils"
 Repository = "https://github.com/markosnarinian/pokerutils"
