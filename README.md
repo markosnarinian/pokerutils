@@ -53,6 +53,12 @@ Or install it with `pip` (Python 3.13+):
 pip install pokerutils
 ```
 
+Or with [Homebrew](https://brew.sh/):
+
+```sh
+brew install markosnarinian/tap/pokerutils
+```
+
 Then start it with:
 
 ```sh
