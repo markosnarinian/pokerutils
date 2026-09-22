@@ -1,4 +1,4 @@
-from pokertools.main import main
+from pokerutils.main import main
 
 
 if __name__ == "__main__":

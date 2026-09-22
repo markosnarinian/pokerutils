@@ -1,8 +1,8 @@
-from .app import PokertoolsApp
+from .app import PokerutilsApp
 
 
 def main():
-    app = PokertoolsApp()
+    app = PokerutilsApp()
     app.run()
 
 

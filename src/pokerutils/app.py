@@ -8,8 +8,8 @@ from .utils.config import load_theme, save_theme
 from .utils.readme import load_readme
 
 
-class PokertoolsApp(App):
-    TITLE = "pokertools"
+class PokerutilsApp(App):
+    TITLE = "pokerutils"
 
     CSS_PATH = "app.tcss"
 

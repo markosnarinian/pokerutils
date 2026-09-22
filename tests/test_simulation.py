@@ -5,9 +5,9 @@ from unittest.mock import patch
 from pokerkit import Automation, Card, NoLimitTexasHoldem
 from textual.widgets import Button, Input, Static
 
-from pokertools.app import PokertoolsApp
-from pokertools.utils.simulation import Simulation
-from pokertools.widgets.playing_card import PlayingCard, Rank, Suit
+from pokerutils.app import PokerutilsApp
+from pokerutils.utils.simulation import Simulation
+from pokerutils.widgets.playing_card import PlayingCard, Rank, Suit
 
 
 class SimulationTests(unittest.TestCase):
@@ -110,10 +110,10 @@ class SimulationTests(unittest.TestCase):
 class TrainerTests(unittest.IsolatedAsyncioTestCase):
     async def test_auto_timing_cancellation_and_validation(self):
         with (
-            patch("pokertools.app.save_theme"),
-            patch("pokertools.app.load_theme", return_value=None),
+            patch("pokerutils.app.save_theme"),
+            patch("pokerutils.app.load_theme", return_value=None),
         ):
-            app = PokertoolsApp()
+            app = PokerutilsApp()
             async with app.run_test(size=(120, 60)) as pilot:
                 await pilot.press("t")
                 await pilot.pause()
@@ -122,7 +122,7 @@ class TrainerTests(unittest.IsolatedAsyncioTestCase):
                 with (
                     patch.object(screen, "set_timer") as timer,
                     patch(
-                        "pokertools.screens.table_trainer.random.uniform",
+                        "pokerutils.screens.table_trainer.random.uniform",
                         return_value=3.7,
                     ) as uniform,
                 ):
@@ -173,10 +173,10 @@ class TrainerTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_auto_advances_and_waits_for_hero(self):
         with (
-            patch("pokertools.app.save_theme"),
-            patch("pokertools.app.load_theme", return_value=None),
+            patch("pokerutils.app.save_theme"),
+            patch("pokerutils.app.load_theme", return_value=None),
         ):
-            app = PokertoolsApp()
+            app = PokerutilsApp()
             async with app.run_test(size=(120, 60)) as pilot:
                 await pilot.press("t")
                 await pilot.pause()
@@ -212,10 +212,10 @@ class TrainerTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_card_widgets_reveal_and_reset(self):
         with (
-            patch("pokertools.app.save_theme"),
-            patch("pokertools.app.load_theme", return_value=None),
+            patch("pokerutils.app.save_theme"),
+            patch("pokerutils.app.load_theme", return_value=None),
         ):
-            app = PokertoolsApp()
+            app = PokerutilsApp()
             async with app.run_test(size=(120, 48)) as pilot:
                 await pilot.press("t")
                 await pilot.pause()
@@ -254,10 +254,10 @@ class TrainerTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_navigation_answers_invalid_raise_and_completion(self):
         with (
-            patch("pokertools.app.save_theme"),
-            patch("pokertools.app.load_theme", return_value=None),
+            patch("pokerutils.app.save_theme"),
+            patch("pokerutils.app.load_theme", return_value=None),
         ):
-            app = PokertoolsApp()
+            app = PokerutilsApp()
             async with app.run_test(size=(120, 48)) as pilot:
                 await pilot.press("t")
                 await pilot.pause()

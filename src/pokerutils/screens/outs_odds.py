@@ -8,6 +8,7 @@ from textual.widgets import Footer, Header
 
 from ..utils.config import load_theme, save_theme
 from ..widgets import (
+    AnswerPanel,
     CommunityCards,
     PlayerHand,
     PlayingCard,
@@ -99,7 +100,9 @@ class OutsOdds(Screen):
         self.refresh_bindings()
 
     def _refresh_side_panel(self) -> None:
-        self.query_one(SidePanel).refresh_info(
-            list(self.query(PlayerHand).first().query(PlayingCard)),
-            list(self.query(CommunityCards).first().query(PlayingCard)),
-        )
+        hole = list(self.query(PlayerHand).first().query(PlayingCard))
+        board = list(self.query(CommunityCards).first().query(PlayingCard))
+        summary = self.query_one(SidePanel).refresh_info(hole, board)
+        # Grade against the widest direct draw, the same one the side panel leads with.
+        direct = [draw for draw in summary.draws if "Backdoor" not in draw.name]
+        self.query_one(AnswerPanel).set_expected(direct[0] if direct else None)

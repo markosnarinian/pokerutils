@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import math
 from collections import Counter
-from dataclasses import dataclass
+from collections.abc import Iterable
+from dataclasses import dataclass, field
 from itertools import combinations
-from typing import Iterable
 
 from ..widgets.playing_card import PlayingCard, Rank, Suit
 
@@ -248,6 +248,8 @@ class Summary:
     hand_desc: str
     draws_text: str
     unseen: int
+    draws: list[Draw] = field(default_factory=list)
+    """Detected draws, with chance and odds_against resolved, best first."""
 
 
 def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
@@ -267,6 +269,7 @@ def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
     unseen = DECK_SIZE - len(known)
     cards_to_come = {3: 2, 4: 1}.get(len(revealed), 0)
 
+    resolved: list[Draw] = []
     if cards_to_come and known:
         draws = detect_draws(known, unseen, cards_to_come)
         if draws:
@@ -276,15 +279,23 @@ def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
                     chance, odds = draw_odds(draw.outs, unseen, cards_to_come)
                 else:
                     chance, odds = draw.chance, draw.odds_against
+                resolved.append(Draw(draw.name, draw.outs, chance, odds))
                 lines.append(f"- **{draw.name}**")
                 lines.append(f"    - {draw.outs} outs")
                 lines.append(f"    - {chance:.1f}% chance")
                 if odds != math.inf:
                     lines.append(f"    - {odds:.1f} : 1 against")
             draws_text = "\n".join(lines)
+            resolved.sort(key=lambda draw: draw.outs, reverse=True)
         else:
             draws_text = "_None_"
     else:
         draws_text = "_--_"
 
-    return Summary(hole_text=hole_text, hand_desc=hand_desc, draws_text=draws_text, unseen=unseen)
+    return Summary(
+        hole_text=hole_text,
+        hand_desc=hand_desc,
+        draws_text=draws_text,
+        unseen=unseen,
+        draws=resolved,
+    )

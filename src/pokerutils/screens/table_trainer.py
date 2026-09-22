@@ -344,11 +344,15 @@ class TableTrainer(Screen):
             elif action == "step":
                 self.game.step()
             elif action in ("fold", "call", "raise"):
-                amount = (
-                    int(self.query_one("#raise-to", Input).value)
-                    if action == "raise"
-                    else None
-                )
+                amount = None
+                if action == "raise":
+                    raw = self.query_one("#raise-to", Input).value.strip()
+                    if not raw.isdigit():
+                        self.query_one("#feedback", Static).update(
+                            "Enter the street total to bet or raise to, as a whole number of chips."
+                        )
+                        return
+                    amount = int(raw)
                 self.game.act(action, amount)
             self.render_game()
         except ValueError as error:

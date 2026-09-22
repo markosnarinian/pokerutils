@@ -7,7 +7,7 @@ from textual.containers import Vertical
 from textual.reactive import reactive
 from textual.widgets import Markdown
 
-from ..utils.poker import summarize
+from ..utils.poker import Summary, summarize
 from .playing_card import PlayingCard
 
 
@@ -25,7 +25,7 @@ class SidePanel(Vertical):
         for details in self.query(Markdown):
             details.display = not hidden
 
-    def refresh_info(self, hole: list[PlayingCard], board: list[PlayingCard]) -> None:
+    def refresh_info(self, hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
         """Recompute and display hand strength, draws, and the unseen-card count."""
         summary = summarize(hole, board)
         markdown = (
@@ -34,3 +34,4 @@ class SidePanel(Vertical):
             f"## Draws\n\n{summary.draws_text}"
         )
         self.query_one(Markdown).update(markdown)
+        return summary

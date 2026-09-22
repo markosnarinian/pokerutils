@@ -119,7 +119,7 @@ class PlayingCard(Static):
             "",
             "",
             "",
-            "tools",
+            "utils",
         ]
         body = Group(*lines)
         return Panel(body, border_style="white")

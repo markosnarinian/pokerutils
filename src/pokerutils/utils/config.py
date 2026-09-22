@@ -6,7 +6,7 @@ import json
 
 from platformdirs import user_config_path
 
-CONFIG_PATH = user_config_path("pokertools", appauthor=False) / "config.json"
+CONFIG_PATH = user_config_path("pokerutils", appauthor=False) / "config.json"
 
 
 def load_theme() -> str | None:

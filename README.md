@@ -1,4 +1,4 @@
-# pokertools
+# pokerutils
 
 A terminal app for practicing Texas Hold'em hand reading — deal a hand, reveal the board street by street, and see your hand strength, draws, and odds update live.
 
@@ -10,6 +10,12 @@ A terminal app for practicing Texas Hold'em hand reading — deal a hand, reveal
 - Detects live draws — flush, straight, gutshot, double gutshot, and backdoor draws — with out counts, hit chance, and odds against
 - Remembers your chosen color theme between sessions
 - Six-seat no-limit Texas Hold'em table trainer with five simulated opponents, legal betting, blinds, and payouts
+
+## Screenshots
+
+| Table trainer | Outs and odds |
+| --- | --- |
+| ![Six-seat table trainer](docs/images/table-trainer.png) | ![Outs and odds exercise](docs/images/outs-odds.png) |
 
 ## Controls
 
@@ -24,12 +30,41 @@ A terminal app for practicing Texas Hold'em hand reading — deal a hand, reveal
 | `escape` | Clear focus              |
 | `q`      | Quit                     |
 
-## Getting started
+## Outs and odds exercise
 
-Requires Python 3.13+ and [uv](https://docs.astral.sh/uv/).
+Press `o` from the home screen. You get hole cards and a hidden board; `n` reveals
+the flop, then the turn, then the river. Enter the outs and the odds against
+hitting on the **next card** and press **Submit** to have them graded against the
+widest direct draw. Odds accept `4.2` or `4.2:1`, with a tolerance of 0.1; outs
+must be exact. Press `s` to hide the side panel while you work, and again to check
+your reasoning against the full breakdown.
+
+## Install
+
+Run it without installing anything, using [uv](https://docs.astral.sh/uv/):
 
 ```sh
-uv run src/main.py
+uvx pokerutils
+```
+
+Or install it with `pip` (Python 3.13+):
+
+```sh
+pip install pokerutils
+```
+
+Then start it with:
+
+```sh
+pokerutils
+```
+
+### From source
+
+```sh
+git clone https://github.com/markosnarinian/pokerutils
+cd pokerutils
+uv run pokerutils
 ```
 
 ## Table trainer
@@ -112,6 +147,10 @@ dataset is downloaded or bundled.
 ```sh
 PYTHONPATH=src uv run python -m unittest discover -s tests -v
 ```
+
+## License
+
+Released under the [GNU General Public License v3.0 or later](LICENSE).
 
 ## Tech stack
 

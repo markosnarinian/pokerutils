@@ -71,9 +71,9 @@ wheels = [
 ]
 
 [[package]]
-name = "pokertools"
+name = "pokerutils"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "platformdirs" },
     { name = "pokerkit" },
