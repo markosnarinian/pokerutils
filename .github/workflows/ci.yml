@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.13", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked --python ${{ matrix.python-version }}
+
+      - name: Lint
+        run: uv run ruff check src tests
+
+      - name: Test
+        run: uv run python -m unittest discover -s tests -v
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Build the distributions
+        run: uv build
+
+      - name: Check the distributions are installable and the entry point works
+        run: |
+          uv run --isolated --no-project --with dist/*.whl \
+            python -c "from pokerutils.utils.readme import readme_path; \
+                       assert readme_path() is not None, 'README not bundled in the wheel'; \
+                       import pokerutils.main"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/

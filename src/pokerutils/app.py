@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.widgets import Footer, Header, Markdown
@@ -15,9 +17,9 @@ class PokerutilsApp(App):
 
     AUTO_FOCUS = None
 
-    SCREENS = {"outs_odds": OutsOdds, "table_trainer": TableTrainer}
+    SCREENS: ClassVar = {"outs_odds": OutsOdds, "table_trainer": TableTrainer}
 
-    BINDINGS = [
+    BINDINGS: ClassVar = [
         ("o", "push_screen('outs_odds')", "Outs/Odds"),
         ("t", "push_screen('table_trainer')", "Table trainer"),
         Binding("escape", "blur", "Remove focus", show=True),

@@ -11,7 +11,7 @@ __all__ = [
     "PlayerHand",
     "PlayingCard",
     "Rank",
-    "Suit",
     "SidePanel",
+    "Suit",
     "Table",
 ]

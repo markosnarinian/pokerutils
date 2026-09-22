@@ -1,4 +1,5 @@
 import random
+from typing import ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -20,7 +21,7 @@ from ..widgets import (
 
 
 class OutsOdds(Screen):
-    BINDINGS = [
+    BINDINGS: ClassVar = [
         ("d", "deal", "Deal cards"),
         ("n", "next", "Next round"),
         ("s", "hide_details", "Hide details"),
