@@ -37,12 +37,14 @@ CommunityCards {
 }
 
 PlayerHand {
+    width: 29;
     align: center middle;
     border: round white;
     padding: 1;
 }
 
 AnswerPanel {
+    width: 1fr;
     align: center middle;
     border: round white;
     padding: 1;
@@ -50,16 +52,17 @@ AnswerPanel {
 
 AnswerPanel HorizontalGroup {
     align: center middle;
-    width: auto;
+    width: 1fr;
     margin-bottom: 1;
 }
 
-#odds-against {
-    margin-left: 1;
+AnswerPanel .answer-label {
+    width: 14;
 }
 
-#outs {
-    margin-left: 9;
+AnswerPanel .answer-result {
+    width: 1fr;
+    margin-left: 1;
 }
 
 AnswerPanel Input {
@@ -68,6 +71,7 @@ AnswerPanel Input {
 
 AnswerPanel Button {
     width: 29;
+    margin-left: 14;
 }
 
 PlayingCard {

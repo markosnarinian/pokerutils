@@ -34,10 +34,9 @@ A terminal app for practicing Texas Hold'em hand reading — deal a hand, reveal
 
 Press `o` from the home screen. You get hole cards and a hidden board; `n` reveals
 the flop, then the turn, then the river. Enter the outs and the odds against
-hitting on the **next card** and press **Submit** to have them graded against the
-widest direct draw. Odds accept `4.2` or `4.2:1`, with a tolerance of 0.1; outs
-must be exact. Press `s` to hide the side panel while you work, and again to check
-your reasoning against the full breakdown.
+hitting on the **next card** and press **Submit** to compare them with the overall
+direct outs and odds. Odds accept `4.2` or `4.2:1`. Press `s` to hide the side
+panel while you work, and again to check your reasoning against the full breakdown.
 
 ## Install
 

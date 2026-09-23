@@ -250,6 +250,32 @@ class Summary:
     unseen: int
     draws: list[Draw] = field(default_factory=list)
     """Detected draws, with chance and odds_against resolved, best first."""
+    overall_outs: int | None = None
+    overall_odds_against: float | None = None
+
+
+def _count_overall_outs(known: list[Card], draws: list[Draw]) -> int:
+    """Count distinct next cards that complete any direct flush or straight draw."""
+    completes_flush = any(draw.name.startswith("Flush Draw") for draw in draws)
+    completes_straight = any("Straight Draw" in draw.name for draw in draws)
+    if not completes_flush and not completes_straight:
+        return 0
+
+    known_set = set(known)
+    outs = 0
+    for rank in range(2, 15):
+        for suit in Suit:
+            card = (rank, suit)
+            if card in known_set:
+                continue
+            candidate = [*known, card]
+            has_flush = (
+                max(Counter(card_suit for _, card_suit in candidate).values()) >= 5
+            )
+            has_straight = _is_straight({value for value, _ in candidate}) is not None
+            if (completes_flush and has_flush) or (completes_straight and has_straight):
+                outs += 1
+    return outs
 
 
 def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
@@ -270,6 +296,8 @@ def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
     cards_to_come = {3: 2, 4: 1}.get(len(revealed), 0)
 
     resolved: list[Draw] = []
+    overall_outs = None
+    overall_odds_against = None
     if cards_to_come and known:
         draws = detect_draws(known, unseen, cards_to_come)
         if draws:
@@ -289,6 +317,11 @@ def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
             resolved.sort(key=lambda draw: draw.outs, reverse=True)
         else:
             draws_text = "_None_"
+
+        direct = [draw for draw in resolved if "Backdoor" not in draw.name]
+        overall_outs = _count_overall_outs(known, direct)
+        if overall_outs:
+            _, overall_odds_against = draw_odds(overall_outs, unseen, 1)
     else:
         draws_text = "_--_"
 
@@ -298,4 +331,6 @@ def summarize(hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
         draws_text=draws_text,
         unseen=unseen,
         draws=resolved,
+        overall_outs=overall_outs,
+        overall_odds_against=overall_odds_against,
     )

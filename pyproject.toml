@@ -1,6 +1,6 @@
 [project]
 name = "pokerutils"
-version = "0.1.0"
+version = "0.1.1"
 description = "A terminal trainer for Texas Hold'em: read hands street by street, count outs, and practise pot odds at a six-seat table"
 readme = "README.md"
 requires-python = ">=3.13"

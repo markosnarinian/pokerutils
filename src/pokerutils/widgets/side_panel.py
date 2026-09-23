@@ -28,10 +28,11 @@ class SidePanel(Vertical):
     def refresh_info(self, hole: list[PlayingCard], board: list[PlayingCard]) -> Summary:
         """Recompute and display hand strength, draws, and the unseen-card count."""
         summary = summarize(hole, board)
+        overall = "--" if summary.overall_outs is None else str(summary.overall_outs)
         markdown = (
             f"## Hand\n\n**{summary.hole_text}**  \n_{summary.hand_desc}_\n\n"
             f"## Deck\n\n**{summary.unseen}** unseen cards\n\n"
-            f"## Draws\n\n{summary.draws_text}"
+            f"## Draws\n\n**{overall} overall outs**\n\n{summary.draws_text}"
         )
         self.query_one(Markdown).update(markdown)
         return summary

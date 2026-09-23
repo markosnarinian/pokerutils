@@ -104,6 +104,6 @@ class OutsOdds(Screen):
         hole = list(self.query(PlayerHand).first().query(PlayingCard))
         board = list(self.query(CommunityCards).first().query(PlayingCard))
         summary = self.query_one(SidePanel).refresh_info(hole, board)
-        # Grade against the widest direct draw, the same one the side panel leads with.
-        direct = [draw for draw in summary.draws if "Backdoor" not in draw.name]
-        self.query_one(AnswerPanel).set_expected(direct[0] if direct else None)
+        self.query_one(AnswerPanel).set_expected(
+            summary.overall_outs, summary.overall_odds_against
+        )
