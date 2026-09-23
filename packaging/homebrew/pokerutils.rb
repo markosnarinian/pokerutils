@@ -3,8 +3,8 @@ class Pokerutils < Formula
 
   desc "Terminal trainer for Texas Hold'em hand reading, outs, and pot odds"
   homepage "https://github.com/markosnarinian/pokerutils"
-  url "https://files.pythonhosted.org/packages/ce/ea/fb86085e71cfea0e785e641411efd9bad036f96010d3aec972e28eea996e/pokerutils-0.1.0.tar.gz"
-  sha256 "46d5befb82ecc258c9b0a78d6afab2e82233ab786ff6bcb8038935acfa93b330"
+  url "https://files.pythonhosted.org/packages/4c/81/333876fb1914213ff55bde203fde1a7a21627ac60e50008b0aab56c60251/pokerutils-0.1.1.tar.gz"
+  sha256 "08fa3e61c8f1fb3391eea43943817835dd8546d7a387e812acced7b2e92bb6b7"
   license "GPL-3.0-or-later"
 
   depends_on "python@3.14"
